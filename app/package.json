@@ -1,0 +1,30 @@
+{
+  "name": "siege",
+  "version": "0.0.1",
+  "description": "Dexterity castle defence game",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "webpack serve --mode development --config webpack.config.js",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "phaser": "^3.55.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-native": "^0.67.0",
+    "react-native-web": "^0.17.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.14.6",
+    "@babel/preset-env": "^7.14.7",
+    "@babel/preset-react": "^7.14.5",
+    "babel-loader": "^8.2.2",
+    "html-webpack-plugin": "^5.3.2",
+    "webpack": "^5.48.0",
+    "webpack-cli": "^5.0.1",
+    "webpack-dev-server": "^4.13.3"
+  },
+  "browserslist": [
+    "last 1 Chrome versions"
+  ]
+}
