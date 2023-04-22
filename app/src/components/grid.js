@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import PatternMatcher from './patternMatcher';
 
 export default class Grid extends Phaser.GameObjects.Container {
   constructor(scene, x, y, rows, cols, cellSize) {
@@ -12,6 +13,7 @@ export default class Grid extends Phaser.GameObjects.Container {
 
     this.createGrid();
     this.createCursor();
+    this.patternMatcher = new PatternMatcher(this);
     scene.add.existing(this);
   }
 
@@ -28,6 +30,7 @@ export default class Grid extends Phaser.GameObjects.Container {
           imageKey
         ).setOrigin(0, 0);
         block.setScale(this.cellSize/8)
+        block.color = imageKey;
         this.add(block);
         this.grid[row][col] = block;
       }
@@ -56,6 +59,7 @@ export default class Grid extends Phaser.GameObjects.Container {
               col * this.cellSize,
               row * this.cellSize,
             );
+            this.grid[row][col].color = imageKey;
           },
         });
       }
@@ -125,5 +129,10 @@ export default class Grid extends Phaser.GameObjects.Container {
       this.selectedBlockOutline.setPosition(selectedBlock.x, selectedBlock.y);
       this.selectedBlockOutline.visible = true;
     }
+  }
+
+  checkPatterns() {
+    const matchedPatterns = this.patternMatcher.matchPatterns();
+    console.log('found patterns', matchedPatterns);
   }
 }

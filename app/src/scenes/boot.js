@@ -15,6 +15,7 @@ export default class BootScene extends Phaser.Scene {
     this.load.image('magic', './assets/magic.png');
     this.load.image('fire', './assets/fire.png');
     this.load.image('infantry', './assets/infantry.png');
+    this.load.json('unitPatterns', './data/unitPatterns.json');
   }
 
   // ... (rest of the code)

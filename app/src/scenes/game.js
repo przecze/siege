@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import Grid from '../components/grid';
+import Infantry from '../units/infantry';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -33,10 +34,14 @@ export default class GameScene extends Phaser.Scene {
 
     this.input.keyboard.on('keydown-SPACE', () => {
       this.grid.swapBlocks();
+      this.grid.checkPatterns();
     });
     this.input.keyboard.on('keydown-R', () => {
       this.grid.resetGrid();
+      this.grid.checkPatterns();
     });
+
+    this.units = [];
 
     // Initialize the timer for spawning infantry
     this.spawnTimer = this.time.addEvent({
@@ -45,6 +50,9 @@ export default class GameScene extends Phaser.Scene {
       callbackScope: this,
       loop: true,
     });
+
+    const unitPatterns = this.cache.json.get('unitPatterns');
+    this.grid.patternMatcher.setPatterns(unitPatterns);
   }
 
   spawnInfantry() {
