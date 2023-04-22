@@ -2,7 +2,7 @@ class Unit {
   constructor(scene, x, y, textureKey, health, speed) {
     this.scene = scene;
     this.sprite = scene.physics.add.sprite(x, y, textureKey);
-    this.sprite.setScale(5);
+    this.sprite.setScale(3);
     this.health = health;
     this.speed = speed;
   }

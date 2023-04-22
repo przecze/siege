@@ -64,6 +64,10 @@ export default class Grid extends Phaser.GameObjects.Container {
         });
       }
     }
+    const matchedPatterns = this.patternMatcher.matchPatterns();
+    matchedPatterns.forEach((pattern) => {
+      this.scene.battlefield.spawnUnit(pattern.unit);
+    });
   }
 
 

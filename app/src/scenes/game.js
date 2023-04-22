@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import Grid from '../components/grid';
+import Battlefield from '../components/battlefield';
 import Infantry from '../units/infantry';
 
 export default class GameScene extends Phaser.Scene {
@@ -53,20 +54,11 @@ export default class GameScene extends Phaser.Scene {
 
     const unitPatterns = this.cache.json.get('unitPatterns');
     this.grid.patternMatcher.setPatterns(unitPatterns);
-  }
 
-  spawnInfantry() {
-    const infantry = new Infantry(this, 0, this.sys.game.config.height / 2);
-    this.units.push(infantry);
+    this.battlefield = new Battlefield(this);
   }
 
   update() {
-    this.units.forEach(unit => {
-      unit.update();
-      if (unit.sprite.x > this.sys.game.config.width) {
-        unit.destroy();
-        this.units.shift();
-      }
-    });
+    this.battlefield.update();
   }
 }
