@@ -71,7 +71,7 @@ sprites = {
     "fire": (fire_sprite, fire_colors),
 }
 infantry_colors = {
-    "0": (0, 0, 0),       # Black - background
+    "0": (0, 0, 0, 0),       # Black - background
     "1": (128, 64, 0),    # Brown - boots and belt
     "2": (0, 128, 0),     # Green - pants
     "3": (192, 192, 192), # Light Gray - chainmail
@@ -106,11 +106,14 @@ infantry_sprite = [
 def sprite_to_png(sprite_data, output_filename):
     sprite_lines, colors = sprite_data
     sprite_size = (len(sprite_lines[0]), len(sprite_lines))
-    img = Image.new("RGB", sprite_size)
+    img = Image.new("RGBA", sprite_size)
 
     for y in range(sprite_size[1]):
         for x in range(sprite_size[0]):
             color_id = sprite_lines[y][x]
+            color = colors[color_id]
+            if len(color) == 3:
+                color = tuple(list(color)+[256])
             img.putpixel((x, y), colors[color_id])
 
     img.save(output_filename)
