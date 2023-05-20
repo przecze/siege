@@ -44,18 +44,24 @@ export default class GameScene extends Phaser.Scene {
 
     this.units = [];
 
-    // Initialize the timer for spawning infantry
-    this.spawnTimer = this.time.addEvent({
-      delay: 2000,
-      callback: this.spawnInfantry,
-      callbackScope: this,
-      loop: true,
-    });
 
     const unitPatterns = this.cache.json.get('unitPatterns');
     this.grid.patternMatcher.setPatterns(unitPatterns);
 
     this.battlefield = new Battlefield(this);
+
+  }
+
+  preload() {
+    // Load the spritesheet
+    this.load.spritesheet('orc', './assets/orc.webp', {
+      frameWidth: 77,
+      frameHeight: 90,
+    });
+    this.load.spritesheet('orc_att', './assets/orc.webp', {
+      frameWidth: 110,
+      frameHeight: 87,
+    });
   }
 
   update() {

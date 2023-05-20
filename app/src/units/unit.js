@@ -1,18 +1,75 @@
-class Unit {
-  constructor(scene, x, y, textureKey, health, speed) {
+import Phaser from 'phaser';
+import HealthBar from './health_bar';
+class Unit extends Phaser.GameObjects.Sprite {
+  constructor(scene, x, y, params) {
+    super(scene, x, y, params.textureKey);
     this.scene = scene;
-    this.sprite = scene.physics.add.sprite(x, y, textureKey);
-    this.sprite.setScale(3);
-    this.health = health;
-    this.speed = speed;
+    this.player = params.player;
+
+
+    this.attackPower = params.attackPower;
+    this.health = params.health;
+    this.speed = params.speed;
+    this.isEngaged = false;
+    if (params.player == 'R') {
+      this.speed = -params.speed;
+      this.flipX = true;
+    }
+    let healthBarWidth = this.displayWidth * 0.8;
+    this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);
+    scene.physics.add.existing(this);
+    this.body.setCollideWorldBounds(true);
+    scene.add.existing(this);
+
+    this.anims.create({
+      key: 'idle',
+      frames: this.anims.generateFrameNumbers('orc', { start: 0, end: 4 }),
+      frameRate: 10,
+      repeat: -1 // repeat forever
+    });
+    this.anims.create({
+      key: 'run',
+      frames: this.anims.generateFrameNumbers('orc', { start: 6, end: 11 }),
+      frameRate: 10,
+      repeat: -1 // repeat forever
+    });
+    this.anims.create({
+      key: 'attack',
+      frames: this.anims.generateFrameNumbers('orc_att', { start: 16, end: 19 }),
+      frameRate: 10,
+      repeat: -1 // repeat forever
+    });
   }
 
   update() {
-    this.sprite.x += this.speed;
+    if (!this.isEngaged) {
+      this.anims.play('run', true);
+      this.x += this.speed;
+      this.healthBar.x = this.x - this.displayWidth/2;
+      this.healthBar.y = this.y - this.displayHeight/2 - 20;
+      this.healthBar.draw();
+    } else {
+      this.anims.play('attack', true);
+    }
+  }
+
+  takeDamage(damage) {
+    this.health -= damage;
+    this.healthBar.decrease(damage);
+    if (this.health <= 0) {
+      this.health = 0;
+      this.destroyed = true;
+    }
   }
 
   destroy() {
-    this.sprite.destroy();
+    super.destroy();
+    this.healthBar.destroy();
+    this.destroyed = true;
+  }
+
+  isDead() {
+    return this.destroyed;
   }
 }
 
