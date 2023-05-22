@@ -7,6 +7,14 @@
     ]
   },
   {
+    "name": "Rider",
+    "unit": "rider",
+    "pattern": [
+      ["fire", "steel"],
+      ["fire", "steel"]
+    ]
+  },
+  {
     "name": "Dragon",
     "unit": "dragon",
     "pattern": [

@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import Infantry from '../units/infantry';
+import Rider from '../units/rider';
 
 export default class Battlefield {
   constructor(scene) {
@@ -34,6 +35,9 @@ export default class Battlefield {
     switch (unitType) {
       case 'infantry':
         unit = new Infantry(this.scene, startPosition.x, startPosition.y, player);
+        break;
+      case 'rider':
+        unit = new Rider(this.scene, startPosition.x, startPosition.y, player);
         break;
       // Add more cases for other unit types as needed
       default:

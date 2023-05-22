@@ -20,25 +20,6 @@ class Unit extends Phaser.GameObjects.Sprite {
     scene.physics.add.existing(this);
     this.body.setCollideWorldBounds(true);
     scene.add.existing(this);
-
-    this.anims.create({
-      key: 'idle',
-      frames: this.anims.generateFrameNumbers('orc', { start: 0, end: 4 }),
-      frameRate: 10,
-      repeat: -1 // repeat forever
-    });
-    this.anims.create({
-      key: 'run',
-      frames: this.anims.generateFrameNumbers('orc', { start: 6, end: 11 }),
-      frameRate: 10,
-      repeat: -1 // repeat forever
-    });
-    this.anims.create({
-      key: 'attack',
-      frames: this.anims.generateFrameNumbers('orc_att', { start: 16, end: 19 }),
-      frameRate: 10,
-      repeat: -1 // repeat forever
-    });
   }
 
   update() {

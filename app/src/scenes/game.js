@@ -62,6 +62,14 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 110,
       frameHeight: 87,
     });
+    this.load.spritesheet('rider', './assets/rider.webp', {
+      frameWidth: 77,
+      frameHeight: 90,
+    });
+    this.load.spritesheet('rider_att', './assets/rider.webp', {
+      frameWidth: 120,
+      frameHeight: 87,
+    });
   }
 
   update() {
