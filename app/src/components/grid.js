@@ -15,6 +15,8 @@ export default class Grid extends Phaser.GameObjects.Container {
     this.createCursor();
     this.patternMatcher = new PatternMatcher(this);
     scene.add.existing(this);
+    this.unitOverlayGroup = this.scene.add.group();
+    this.runPatternCheck();
   }
 
   createGrid() {
@@ -38,7 +40,10 @@ export default class Grid extends Phaser.GameObjects.Container {
   }
 
   resetGrid() {
+    this.clearUnitOverlays();
     const images = ['wood', 'steel', 'magic', 'fire'];
+    let completeCount = 0;
+    const totalCount = this.rows * this.cols;
     for (let row = 0; row < this.grid.length; row++) {
       for (let col = 0; col < this.grid[row].length; col++) {
         const block = this.grid[row][col];
@@ -60,6 +65,10 @@ export default class Grid extends Phaser.GameObjects.Container {
               row * this.cellSize,
             );
             this.grid[row][col].color = imageKey;
+            completeCount++;
+            if (completeCount === totalCount) {
+              this.runPatternCheck();
+            }
           },
         });
       }
@@ -106,14 +115,61 @@ export default class Grid extends Phaser.GameObjects.Container {
     );
   }
 
+  clearUnitOverlays() {
+    this.unitOverlayGroup.clear(true, true);
+  }
+
+
+  runPatternCheck() {
+    const matchedPatterns = this.patternMatcher.matchPatterns();
+    matchedPatterns.forEach((pattern) => {
+      const { row, col } = pattern.position;
+      const size = pattern.size;
+
+      const unitTexture = this.scene.textures.get(pattern.unit);
+      const unitWidth = unitTexture.source[0].width;
+      const unitHeight = unitTexture.source[0].height;
+
+      const scaleX = 8 * 0.8 * size.width * this.cellSize / unitWidth;
+      const scaleY = 8 * 0.8 * size.height * this.cellSize / unitHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      const unitOverlayBg = new Phaser.GameObjects.Rectangle(
+        this.scene,
+        col * this.cellSize,
+        (row - size.height + 1) * this.cellSize,
+        size.width * this.cellSize,
+        size.height * this.cellSize,
+        0xADD8E6,
+        0.5
+      ).setOrigin(0, 0);
+      this.unitOverlayGroup.add(unitOverlayBg);
+      this.add(unitOverlayBg);
+
+      const unitOverlaySprite = new Phaser.GameObjects.Image(
+        this.scene,
+        col * this.cellSize + (size.width * this.cellSize - this.cellSize * scale) / 2,
+        (row - size.height + 1) * this.cellSize - (this.cellSize - this.cellSize * scale) / 2,
+        pattern.unit
+      ).setOrigin(0, 0);
+      unitOverlaySprite.setScale(scale);
+      this.unitOverlayGroup.add(unitOverlaySprite);
+      this.add(unitOverlaySprite);
+    });
+  }
+
   swapBlocks() {
     if (this.selectedPosition) {
-      const oldRow = this.selectedPosition.row;
-      const oldCol = this.selectedPosition.col;
+      this.clearUnitOverlays();
+      const { row: oldRow, col: oldCol } = this.selectedPosition;
       const newRow = this.cursor.row;
       const newCol = this.cursor.col;
       const selectedBlock = this.grid[oldRow][oldCol];
       const currentBlock = this.grid[newRow][newCol];
+
+      console.log('Swapping blocks...');
+      console.log('Selected Block:', selectedBlock);
+      console.log('Current Block:', currentBlock);
 
       // Swap the position of the two blocks
       const currentX = currentBlock.x;
@@ -125,18 +181,30 @@ export default class Grid extends Phaser.GameObjects.Container {
       this.grid[newRow][newCol] = selectedBlock;
       this.grid[oldRow][oldCol] = currentBlock;
 
+      console.log('Blocks swapped successfully.');
+
+      // Check for patterns
+      const matchedPatterns = this.patternMatcher.matchPatterns();
+
+      if (matchedPatterns.length > 0) {
+        console.log('Matched Patterns:', matchedPatterns);
+      } else {
+        console.log('No patterns matched.');
+      }
+      this.runPatternCheck();
+
       this.selectedBlockOutline.visible = false;
       this.selectedPosition = null;
     } else {
-      this.selectedPosition = {row: this.cursor.row, col: this.cursor.col};
-      const selectedBlock = this.grid[this.selectedPosition.row][this.selectedPosition.col]
+      this.selectedPosition = { row: this.cursor.row, col: this.cursor.col };
+      const selectedBlock = this.grid[this.selectedPosition.row][this.selectedPosition.col];
       this.selectedBlockOutline.setPosition(selectedBlock.x, selectedBlock.y);
       this.selectedBlockOutline.visible = true;
     }
   }
 
+
   checkPatterns() {
     const matchedPatterns = this.patternMatcher.matchPatterns();
-    console.log('found patterns', matchedPatterns);
   }
 }

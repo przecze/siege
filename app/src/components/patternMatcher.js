@@ -18,13 +18,19 @@ class PatternMatcher {
       const matchedPatternsAtPoint = [];
 
       for (const pattern of this.patterns) {
+        const patternWidth = pattern.pattern[0].length;
+        const patternHeight = pattern.pattern.length;
         // Check if pattern width fits in the remaining grid space
-        if (startPoint.col + pattern.pattern[0].length <= this.grid.cols) {
+        if (
+          startPoint.col + patternWidth <= this.grid.cols &&
+          startPoint.row - patternHeight >= 0
+        ) {
           if (this.checkPattern(startPoint, pattern)) {
             matchedPatternsAtPoint.push({
               unit: pattern.unit,
               position: { row: startPoint.row, col: startPoint.col },
               pattern: pattern.pattern,
+              size: { width: patternWidth, height: patternHeight },
             });
           }
         }
@@ -50,8 +56,6 @@ class PatternMatcher {
       for (let col = 0; col < pattern.pattern[row].length; col++) {
         const patternColor = pattern.pattern[row][col];
         const gridColor = this.grid.grid[startPoint.row - row][startPoint.col + col].color;
-        console.log('checking', gridColor, startPoint.row - row, startPoint.col + col)
-        console.log('agains', patternColor, row, col)
 
         if (patternColor !== gridColor) {
           return false;

@@ -10,12 +10,14 @@ export default class Battlefield {
       x: scene.sys.game.config.width - 50, // Position of the enemy castle on the right side of the screen
       health: 1000, // Set the initial health of the enemy castle
     };
+    this.playerHealth = 1000;
     this.spawnEnemyTimer = scene.time.addEvent({
-      delay: 6000,
+      delay: 5000,
       callback: this.spawnEnemyUnit,
       callbackScope: this,
       loop: true,
     });
+    this.timer = 100;
   }
 
   spawnEnemyUnit() {
@@ -25,7 +27,7 @@ export default class Battlefield {
 
   spawnUnit(unitType, player) {
     const startPosition = {
-      x: 0,
+      x: Math.floor(Math.random()*30),
       y: this.scene.sys.game.config.height / 2,
     };
     if (player == 'R') {
@@ -91,31 +93,45 @@ export default class Battlefield {
 
 
   update() {
+
+    // Check for collisions between units and handle combat
+    this.handleCombat();
+
     // Update the position of units and handle other unit logic here
     this.units.forEach((unit) => {
       unit.update();
     });
 
-    // Check for collisions between units and handle combat
-    this.handleCombat();
-
     // Check if any units reached the enemy castle and deal damage
     this.units.forEach((unit) => {
-      if (unit.x >= this.enemyCastle.x - 10) {
+      if (unit.player == 'L' && unit.x >= this.enemyCastle.x - 10) {
         this.enemyCastle.health -= unit.health; // Reduce the castle's health by the unit's attack power
         unit.destroy(); // Destroy the unit after it deals damage to the castle
-        console.log(this.enemyCastle.health)
+        console.log(this.enemyCastle.health);
+      }
+      if (unit.player == 'R' && unit.x <= 10) {
+        this.playerHealth -= unit.health; // Reduce the castle's health by the unit's attack power
+        unit.destroy(); // Destroy the unit after it deals damage to the castle
+        console.log(this.playerHealth);
       }
     });
 
     // Remove destroyed units from the array
     this.units = this.units.filter((unit) => !unit.destroyed);
 
-    // Check if the enemy castle is destroyed
+    this.timer = Math.max(this.timer - this.scene.game.loop.delta / 1000, 0); // Subtract elapsed time (in seconds) from timer
+    this.gameOver = false;
     if (this.enemyCastle.health <= 0) {
-      console.log('You win! Enemy castle is destroyed.');
-      // Handle the win condition here, e.g., end the game or transition to the next level
+      this.gameOver = true;
     }
+    if (this.playerHealth <= 0) {
+      this.gameOver = true;
+    }
+    if (this.timer <= 0) {
+      this.gameOver = true;
+    }
+
+
   }
 }
 

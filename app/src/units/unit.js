@@ -17,8 +17,8 @@ class Unit extends Phaser.GameObjects.Sprite {
     }
     let healthBarWidth = this.displayWidth * 0.8;
     this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);
-    scene.physics.add.existing(this);
-    this.body.setCollideWorldBounds(true);
+    //scene.physics.add.existing(this);
+    //this.body.setCollideWorldBounds(true);
     scene.add.existing(this);
   }
 
@@ -31,6 +31,7 @@ class Unit extends Phaser.GameObjects.Sprite {
       this.healthBar.draw();
     } else {
       this.anims.play('attack', true);
+      this.isEngaged = false;
     }
   }
 
