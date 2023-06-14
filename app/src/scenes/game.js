@@ -6,6 +6,7 @@ import HealthTracker from '../components/healthTracker';
 export default class GameScene extends Phaser.Scene {
   constructor() {
     super('game');
+    this.isPaused = false;
   }
 
   create() {
@@ -42,6 +43,8 @@ export default class GameScene extends Phaser.Scene {
       this.grid.resetGrid();
       this.grid.checkPatterns();
     });
+    this.input.keyboard.on('keydown-S', this.slowGame, this);
+    this.input.keyboard.on('keydown-P', this.togglePause, this);
 
     this.units = [];
 
@@ -61,6 +64,19 @@ export default class GameScene extends Phaser.Scene {
     ).setOrigin(0.5, 0.5).setVisible(false);
 
 
+  }
+    slowGame() {
+    // Modify the timeScale to slow down the game
+    this.physics.world.timeScale *= 0.5;
+  }
+
+  togglePause() {
+    if (this.isPaused) {
+      this.physics.resume();
+    } else {
+      this.physics.pause();
+    }
+    this.isPaused = !this.isPaused;
   }
 
   preload() {
@@ -101,15 +117,17 @@ export default class GameScene extends Phaser.Scene {
         this.scene.restart();
       });
     } else {
-      // Continue the game...
-      this.battlefield.update();
-      this.healthTracker.updatePlayerHealth(this.battlefield.playerHealth);
-      this.healthTracker.updateEnemyHealth(this.battlefield.enemyCastle.health);
+      if (!this.isPaused && !this.battlefield.gameOver) {
+        // Continue the game...
+        this.battlefield.update();
+        this.healthTracker.updatePlayerHealth(this.battlefield.playerHealth);
+        this.healthTracker.updateEnemyHealth(this.battlefield.enemyCastle.health);
 
-      const minutes = Math.floor(this.battlefield.timer / 60);
-      const seconds = Math.floor(this.battlefield.timer % 60);
-      const timerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-      this.healthTracker.updateTimer(timerText);
+        const minutes = Math.floor(this.battlefield.timer / 60);
+        const seconds = Math.floor(this.battlefield.timer % 60);
+        const timerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        this.healthTracker.updateTimer(timerText);
+      }
     }
   }
 }

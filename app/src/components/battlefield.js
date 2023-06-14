@@ -12,7 +12,7 @@ export default class Battlefield {
     };
     this.playerHealth = 1000;
     this.spawnEnemyTimer = scene.time.addEvent({
-      delay: 5000,
+      delay: 3200,
       callback: this.spawnEnemyUnit,
       callbackScope: this,
       loop: true,
@@ -21,7 +21,16 @@ export default class Battlefield {
   }
 
   spawnEnemyUnit() {
-    this.spawnUnit('infantry', 'R');
+    let unitType;
+    let rand = Math.random(); // generates a random number between 0 and 1
+    
+    if (rand < 0.2) {
+      unitType = 'rider';
+    } else {
+      unitType = 'infantry';
+    }
+    
+    this.spawnUnit(unitType, 'R');
   }
 
 
