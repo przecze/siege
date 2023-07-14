@@ -11,6 +11,11 @@ export default class GameScene extends Phaser.Scene {
 
   create() {
     window.b = this
+    let bg = this.add.image(0, 0, 'background').setOrigin(0, 0);
+    let scaleX = this.cameras.main.width / bg.width;
+    let scaleY = this.cameras.main.height / bg.height;
+    let scale = Math.max(scaleX, scaleY);
+    bg.setScale(scale).setScrollFactor(0);
     const cellSize = Math.min(this.sys.game.config.width / 12, this.sys.game.config.height / 15);
     this.grid = new Grid(this, 0, 0, 5, 6, cellSize);
     this.grid.cellSize = cellSize;
@@ -80,6 +85,7 @@ export default class GameScene extends Phaser.Scene {
   }
 
   preload() {
+    this.load.image('background', './assets/background.png');
     // Load the spritesheet
     this.load.spritesheet('infantry', './assets/infantry.webp', {
       frameWidth: 77,

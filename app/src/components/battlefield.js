@@ -37,7 +37,7 @@ export default class Battlefield {
   spawnUnit(unitType, player) {
     const startPosition = {
       x: Math.floor(Math.random()*30),
-      y: this.scene.sys.game.config.height / 2,
+      y: this.scene.sys.game.config.height * 5 / 6,
     };
     if (player == 'R') {
       startPosition.x = this.enemyCastle.x - 20;
