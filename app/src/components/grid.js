@@ -119,6 +119,32 @@ export default class Grid extends Phaser.GameObjects.Container {
     this.unitOverlayGroup.clear(true, true);
   }
 
+  getGridCoordinates(pixelX, pixelY) {
+    const col = Math.floor(pixelX / (this.cellSize * this.scaleX));
+    const row = Math.floor(pixelY / (this.cellSize * this.scaleY));
+
+    // check if coordinates are outside of the grid
+    if (row < 0 || row >= this.rows || col < 0 || col >= this.cols) {
+      return null;
+    }
+
+    return { col, row };
+  }
+
+
+  touchBlockXY(row, col) {
+    // Move the cursor to the clicked block
+    this.cursor.col = col;
+    this.cursor.row = row;
+    this.cursorObj.setPosition(
+      this.cursor.col * this.cellSize,
+      this.cursor.row * this.cellSize
+    );
+
+    // Trigger a block swap
+    this.swapBlocks();
+  }
+
 
   runPatternCheck() {
     const matchedPatterns = this.patternMatcher.matchPatterns();

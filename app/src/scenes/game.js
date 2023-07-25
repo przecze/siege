@@ -16,11 +16,38 @@ export default class GameScene extends Phaser.Scene {
     let scaleY = this.cameras.main.height / bg.height;
     let scale = Math.max(scaleX, scaleY);
     bg.setScale(scale).setScrollFactor(0);
-    const cellSize = Math.min(this.sys.game.config.width / 12, this.sys.game.config.height / 15);
+    const cellSize = this.sys.game.config.height / 12;
     this.grid = new Grid(this, 0, 0, 5, 6, cellSize);
     this.grid.cellSize = cellSize;
     this.grid.setPosition(0, 0);
     this.grid.setScale(cellSize / 64);
+    // create the send troops button
+    let buttonBg = this.add.rectangle(
+      cellSize * this.grid.scaleY * 0.5,
+      cellSize * this.grid.scaleX * 5.3,
+      120, // width of the rectangle
+      50, // height of the rectangle
+      0x808080 // color of the rectangle (gray)
+    );
+    buttonBg.setOrigin(0, 0); // set origin to top left corner
+
+    this.sendTroopsButton = this.add.text(
+      buttonBg.x + buttonBg.width / 2, // center the text horizontally
+      buttonBg.y + buttonBg.height / 2, // center the text vertically
+      "Send Troops",
+      { fill: '#0f0' }
+    )
+    .setOrigin(0.5, 0.5) // center the text origin
+    .setInteractive()
+    .on('pointerdown', () => this.grid.resetGrid());
+
+    // add the rectangle as a background to the button
+    this.sendTroopsButton.setDepth(2); // send the text to front
+    buttonBg.setDepth(1); // send the rectangle to back
+
+
+    // only show it on mobile devices
+    this.sendTroopsButton.visible = !this.sys.game.device.os.desktop;
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -50,6 +77,17 @@ export default class GameScene extends Phaser.Scene {
     });
     this.input.keyboard.on('keydown-S', this.slowGame, this);
     this.input.keyboard.on('keydown-P', this.togglePause, this);
+
+    this.input.on('pointerdown', (pointer) => {
+      const gridCoordinates = this.grid.getGridCoordinates(pointer.x, pointer.y);
+      // only call touchBlockXY if the coordinates are inside the grid
+      if (gridCoordinates) {
+        this.grid.touchBlockXY(gridCoordinates.row, gridCoordinates.col);
+      }
+    });
+
+
+
 
     this.units = [];
 
