@@ -22,18 +22,18 @@ export default class GameScene extends Phaser.Scene {
     this.grid.setPosition(0, 0);
     this.grid.setScale(cellSize / 64);
     // create the send troops button
-    let buttonBg = this.add.rectangle(
+    this.sendTroopsButtonBg = this.add.rectangle(
       cellSize * this.grid.scaleY * 0.5,
       cellSize * this.grid.scaleX * 5.3,
       120, // width of the rectangle
       50, // height of the rectangle
       0x808080 // color of the rectangle (gray)
     );
-    buttonBg.setOrigin(0, 0); // set origin to top left corner
+    this.sendTroopsButtonBg.setOrigin(0, 0); // set origin to top left corner
 
     this.sendTroopsButton = this.add.text(
-      buttonBg.x + buttonBg.width / 2, // center the text horizontally
-      buttonBg.y + buttonBg.height / 2, // center the text vertically
+      this.sendTroopsButtonBg.x + this.sendTroopsButtonBg.width / 2, // center the text horizontally
+      this.sendTroopsButtonBg.y + this.sendTroopsButtonBg.height / 2, // center the text vertically
       "Send Troops",
       { fill: '#0f0' }
     )
@@ -43,11 +43,12 @@ export default class GameScene extends Phaser.Scene {
 
     // add the rectangle as a background to the button
     this.sendTroopsButton.setDepth(2); // send the text to front
-    buttonBg.setDepth(1); // send the rectangle to back
+    this.sendTroopsButtonBg.setDepth(1); // send the rectangle to back
 
 
     // only show it on mobile devices
     this.sendTroopsButton.visible = !this.sys.game.device.os.desktop;
+    this.sendTroopsButtonBg.visible = !this.sys.game.device.os.desktop;
 
     this.cursors = this.input.keyboard.createCursorKeys();
 
