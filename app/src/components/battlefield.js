@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Infantry from '../units/infantry';
 import Rider from '../units/rider';
+import Archer from '../units/archer';
 
 export default class Battlefield {
   constructor(scene) {
@@ -26,10 +27,11 @@ export default class Battlefield {
     
     if (rand < 0.2) {
       unitType = 'rider';
-    } else {
+    } else if (rand < 0.8) {
       unitType = 'infantry';
+    } else {
+      unitType = 'archer';
     }
-    
     this.spawnUnit(unitType, 'R');
   }
 
@@ -48,6 +50,9 @@ export default class Battlefield {
         break;
       case 'rider':
         unit = new Rider(this.scene, startPosition.x, startPosition.y, player);
+        break;
+      case 'archer':
+        unit=  new Archer(this.scene, startPosition.x, startPosition.y, player);
         break;
       // Add more cases for other unit types as needed
       default:

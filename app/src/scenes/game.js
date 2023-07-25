@@ -142,6 +142,10 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 120,
       frameHeight: 87,
     });
+    this.load.spritesheet('archer', './assets/archer.png', {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
   }
 
   update() {

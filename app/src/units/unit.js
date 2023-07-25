@@ -13,7 +13,7 @@ class Unit extends Phaser.GameObjects.Sprite {
     this.isEngaged = false;
     if (params.player == 'R') {
       this.speed = -params.speed;
-      this.flipX = true;
+      this.flipX = ! this.flipX;
     }
     let healthBarWidth = this.displayWidth * 0.8;
     this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);

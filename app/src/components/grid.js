@@ -158,7 +158,7 @@ export default class Grid extends Phaser.GameObjects.Container {
 
       const scaleX = 8 * 0.8 * size.width * this.cellSize / unitWidth;
       const scaleY = 8 * 0.8 * size.height * this.cellSize / unitHeight;
-      const scale = Math.min(scaleX, scaleY);
+      const scale = Math.min(scaleX, scaleY) * (pattern.unit === 'archer' ? 0.5 : 1);
 
       const unitOverlayBg = new Phaser.GameObjects.Rectangle(
         this.scene,
