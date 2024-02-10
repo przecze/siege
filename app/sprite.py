@@ -64,41 +64,48 @@ fire_sprite = [
     "00000000",
 ]
 
-sprites = {
-    "wood": (wood_sprite, wood_colors),
-    "steel": (steel_sprite, steel_colors),
-    "magic": (magic_sprite, magic_colors),
-    "fire": (fire_sprite, fire_colors),
-}
-infantry_colors = {
-    "0": (0, 0, 0, 0),       # Black - background
-    "1": (128, 64, 0),    # Brown - boots and belt
-    "2": (0, 128, 0),     # Green - pants
-    "3": (192, 192, 192), # Light Gray - chainmail
-    "4": (128, 128, 128), # Dark Gray - sword
-    "5": (255, 215, 0),   # Gold - sword hilt
-    "6": (255, 0, 0),     # Red - hat
-    "7": (255, 228, 196), # Light Peach - skin (face and hands)
-    "8": (128, 0, 0),     # Dark Red - feather on hat
+
+# Define color palettes for the arrow parts
+arrow_colors = {
+    "0": (0, 0, 0, 0),     # Transparent background
+    "1": (139, 69, 19),    # Brown for the shaft
+    "2": (192, 192, 192),  # Silver/Grey for the arrowhead
+    "3": (255, 0, 0),      # Red for part of the fletchings
+    "4": (0, 128, 0),      # Green for part of the fletchings
 }
 
-infantry_sprite = [
-    '0000000067800000',
-    '0000006777776000',
-    '0000067878876000',
-    '0000678876560000',
-    '0000000034300000',
-    '0000000124210000',
-    '0000001122223000',
-    '0000022222224440',
-    '0000122524444110',
-    '0000222254422210',
-    '0000122525221110',
-    '0000022000220000',
-    '0000022000220000',
-    '0000011000110000',
-    '0000011110111100'
- ]
+# Arrowhead part
+arrowhead_sprite = [
+    "00000000000000002200000000000000",
+    "00000000000000022222000000000000",
+    "00000000000000222222220000000000",
+    "00000000000002222222222200000000",
+    "00000000000022222222222220000000",
+    "00000000000222222222222222000000",
+]
+
+# Shaft part
+shaft_sprite = [
+    "00000000000000021112000000000000",
+    *["00000000000000021112000000000000" for _ in range(16)],
+]
+
+# Fletchings part
+fletchings_sprite = [
+    "00000000003333333333333330000000",
+    "00000000033444444444444444300000",
+    "00000000334444440044444444330000",
+    "00000003344440000004444444433000",
+    "00000033444400000000000444443300",
+    "00000334444000000000000004443300",
+]
+
+# Combine all parts to form the final arrow sprite
+arrow_sprite = arrowhead_sprite + shaft_sprite + fletchings_sprite
+
+# Assuming the sprite_to_png function exists and is properly defined,
+# you would call it like this:
+# sprite_to_png(final_arrow_sprite, colors, "final_arrow.png")
 
 
 
@@ -117,6 +124,8 @@ def sprite_to_png(sprite_data, output_filename):
             img.putpixel((x, y), colors[color_id])
 
     img.save(output_filename)
+
+sprite_to_png((arrow_sprite, arrow_colors), "public/assets/arrow.png")
 
 ## Create and save each sprite as a PNG file
 #for name, sprite_data in sprites.items():

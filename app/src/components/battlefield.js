@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import Infantry from '../units/infantry';
 import Rider from '../units/rider';
+import Arrow from '../units/archer';	
 
 export default class Battlefield {
   constructor(scene) {
@@ -10,6 +11,10 @@ export default class Battlefield {
       x: scene.sys.game.config.width - 50, // Position of the enemy castle on the right side of the screen
       health: 1000, // Set the initial health of the enemy castle
     };
+    this.playerCastle = {
+      x: 50, // Assuming left side of the screen
+      y: scene.sys.game.config.height - 100, // You might need to adjust this
+    };
     this.playerHealth = 1000;
     this.spawnEnemyTimer = scene.time.addEvent({
       delay: 3200,
@@ -17,9 +22,18 @@ export default class Battlefield {
       callbackScope: this,
       loop: true,
     });
+    this.spawnArrowTimer = scene.time.addEvent({
+        delay: 1000,
+        callback: this.spawnArrowEvent,
+        callbackScope: this,
+        loop: true,
+    });
     this.timer = 100;
   }
 
+  spawnArrowEvent() {
+    this.spawnUnit('arrow', 'L');
+  }
   spawnEnemyUnit() {
     let unitType;
     let rand = Math.random(); // generates a random number between 0 and 1
@@ -50,6 +64,9 @@ export default class Battlefield {
         unit = new Rider(this.scene, startPosition.x, startPosition.y, player);
         break;
       // Add more cases for other unit types as needed
+      case 'arrow':
+        unit = new Arrow(this.scene, startPosition.x, startPosition.y, player);
+        break;
       default:
         console.warn(`Unknown unit type: ${unitType}`);
         return;

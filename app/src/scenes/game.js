@@ -125,6 +125,7 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image('background', './assets/background.png');
+    this.load.image('arrow', './assets/arrow.png');
     // Load the spritesheet
     this.load.spritesheet('infantry', './assets/infantry.webp', {
       frameWidth: 77,

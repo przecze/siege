@@ -15,10 +15,12 @@ class Unit extends Phaser.GameObjects.Sprite {
       this.speed = -params.speed;
       this.flipX = true;
     }
-    let healthBarWidth = this.displayWidth * 0.8;
-    this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);
-    //scene.physics.add.existing(this);
-    //this.body.setCollideWorldBounds(true);
+    // if hasHealtBar not provided assume true
+    this.hasHealthBar = params.hasHealthBar === undefined ? true : params.hasHealthBar;
+    if (this.hasHealthBar) {
+      let healthBarWidth = this.displayWidth * 0.8;
+      this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);
+    }
     scene.add.existing(this);
   }
 
@@ -26,9 +28,11 @@ class Unit extends Phaser.GameObjects.Sprite {
     if (!this.isEngaged) {
       this.anims.play('run', true);
       this.x += this.speed;
-      this.healthBar.x = this.x - this.displayWidth/2;
-      this.healthBar.y = this.y - this.displayHeight/2 - 20;
-      this.healthBar.draw();
+      if (this.hasHealthBar) {
+        this.healthBar.x = this.x - this.displayWidth/2;
+        this.healthBar.y = this.y - this.displayHeight/2 - 20;
+        this.healthBar.draw();
+      }
     } else {
       this.anims.play('attack', true);
       this.isEngaged = false;
@@ -37,7 +41,9 @@ class Unit extends Phaser.GameObjects.Sprite {
 
   takeDamage(damage) {
     this.health -= damage;
-    this.healthBar.decrease(damage);
+    if (this.hasHealthBar) {
+      this.healthBar.decrease(damage);
+    }
     if (this.health <= 0) {
       this.health = 0;
       this.destroyed = true;
@@ -46,7 +52,9 @@ class Unit extends Phaser.GameObjects.Sprite {
 
   destroy() {
     super.destroy();
-    this.healthBar.destroy();
+    if (this.hasHealthBar) {
+      this.healthBar.destroy();
+    }
     this.destroyed = true;
   }
 
