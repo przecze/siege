@@ -143,6 +143,25 @@ export default class GameScene extends Phaser.Scene {
       frameWidth: 120,
       frameHeight: 87,
     });
+
+    // Load Archer animation frames
+    const archerAnimationPaths = {
+        Idle: { start: 1, end: 6, prefix: 'Idle_' },
+        Run: { start: 1, end: 6, prefix: 'Move_' },
+        Attack: { start: 1, end: 9, prefix: 'Skill2_' },
+    };
+
+    for (const [animKey, animData] of Object.entries(archerAnimationPaths)) {
+        for (let i = animData.start; i <= animData.end; i++) {
+            let frameKey = `archer_${animKey.toLowerCase()}_${i}`;
+            let fileName = `${animData.prefix}${i}.png`;
+            this.load.image(
+		    frameKey,
+		    `assets/archer/ani_cropped/${fileName}`,
+	    );
+            console.log(frameKey, fileName);
+        }
+    }
   }
 
   update() {

@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import Infantry from '../units/infantry';
 import Rider from '../units/rider';
-import Arrow from '../units/archer';	
+import Arrow from '../units/arrow';	
+import Archer from '../units/archer';
 
 export default class Battlefield {
   constructor(scene) {
@@ -32,7 +33,7 @@ export default class Battlefield {
   }
 
   spawnArrowEvent() {
-    this.spawnUnit('arrow', 'L');
+    this.spawnUnit('archer', 'L');
   }
   spawnEnemyUnit() {
     let unitType;
@@ -63,7 +64,9 @@ export default class Battlefield {
       case 'rider':
         unit = new Rider(this.scene, startPosition.x, startPosition.y, player);
         break;
-      // Add more cases for other unit types as needed
+      case 'archer':
+        unit = new Archer(this.scene, startPosition.x, startPosition.y, player);
+	break;
       case 'arrow':
         unit = new Arrow(this.scene, startPosition.x, startPosition.y, player);
         break;
