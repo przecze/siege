@@ -21,6 +21,13 @@
       ["fire", "magic", "fire", "magic", "fire", "magic"],
       ["magic", "fire", "magic", "fire", "magic", "fire"]
     ]
+  },
+  {
+    "name": "Archer",
+    "unit": "archer",
+    "pattern": [
+      ["fire", "wood"]
+    ]
   }
 ]
 

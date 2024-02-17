@@ -41,10 +41,11 @@ export default class Battlefield {
     
     if (rand < 0.2) {
       unitType = 'rider';
-    } else {
+    } else if (rand < 0.8) {
       unitType = 'infantry';
+    } else {
+      unitType = 'archer';
     }
-    
     this.spawnUnit(unitType, 'R');
   }
 

@@ -4,6 +4,7 @@ import PatternMatcher from './patternMatcher';
 export default class Grid extends Phaser.GameObjects.Container {
   constructor(scene, x, y, rows, cols, cellSize) {
     super(scene, x, y);
+    this.isGridResetting = false;
     this.rows = rows;
     this.cols = cols;
     this.cellSize = 64;
@@ -40,6 +41,16 @@ export default class Grid extends Phaser.GameObjects.Container {
   }
 
   resetGrid() {
+    if (this.isGridResetting) {
+      return;
+    }
+    this.isGridResetting = true;
+    this.cursorObj.visible = false;
+    const matchedPatterns = this.patternMatcher.matchPatterns();
+    matchedPatterns.forEach((pattern) => {
+      this.scene.battlefield.spawnUnit(pattern.unit, 'L');
+    });
+    const resetDuration = matchedPatterns.length === 0 ? 1200 : 100; 
     this.clearUnitOverlays();
     const images = ['wood', 'steel', 'magic', 'fire'];
     let completeCount = 0;
@@ -55,7 +66,7 @@ export default class Grid extends Phaser.GameObjects.Container {
         this.scene.tweens.add({
           targets: block,
           x: targetX,
-          duration: 300,
+          duration: resetDuration,
           ease: 'Linear',
           onComplete: () => {
             const imageKey = Phaser.Math.RND.pick(images);
@@ -68,15 +79,13 @@ export default class Grid extends Phaser.GameObjects.Container {
             completeCount++;
             if (completeCount === totalCount) {
               this.runPatternCheck();
+              this.isGridResetting = false;
+              this.cursorObj.visible = true;
             }
           },
         });
       }
     }
-    const matchedPatterns = this.patternMatcher.matchPatterns();
-    matchedPatterns.forEach((pattern) => {
-      this.scene.battlefield.spawnUnit(pattern.unit, 'L');
-    });
   }
 
 
@@ -158,7 +167,7 @@ export default class Grid extends Phaser.GameObjects.Container {
 
       const scaleX = 8 * 0.8 * size.width * this.cellSize / unitWidth;
       const scaleY = 8 * 0.8 * size.height * this.cellSize / unitHeight;
-      const scale = Math.min(scaleX, scaleY);
+      const scale = Math.min(scaleX, scaleY) * (pattern.unit === 'archer' ? 0.5 : 1);
 
       const unitOverlayBg = new Phaser.GameObjects.Rectangle(
         this.scene,
@@ -179,6 +188,9 @@ export default class Grid extends Phaser.GameObjects.Container {
         pattern.unit
       ).setOrigin(0, 0);
       unitOverlaySprite.setScale(scale);
+      if (pattern.unit === 'archer') {
+        unitOverlaySprite.flipX = !unitOverlaySprite.flipX;
+      }
       this.unitOverlayGroup.add(unitOverlaySprite);
       this.add(unitOverlaySprite);
     });

@@ -13,7 +13,7 @@ class Unit extends Phaser.GameObjects.Sprite {
     this.isEngaged = false;
     if (params.player == 'R') {
       this.speed = -params.speed;
-      this.flipX = true;
+      this.flipX = ! this.flipX;
     }
     // if hasHealtBar not provided assume true
     this.hasHealthBar = params.hasHealthBar === undefined ? true : params.hasHealthBar;
