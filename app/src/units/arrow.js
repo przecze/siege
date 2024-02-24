@@ -14,7 +14,7 @@ export default class Arrow extends Unit {
       super(scene, x, y, params);
 
         // Scale the arrow
-      this.setScale(2); // Scale up x2
+      this.setScale(1); // Scale up x2
 
       // Physics properties
       scene.physics.world.enable(this);
@@ -24,9 +24,14 @@ export default class Arrow extends Unit {
 
       // Adjust initial velocity for the desired trajectory
       const velocityX = 500; // Horizontal velocity
-      const velocityY = -500; // Vertical velocity, negative to move up
+      const velocityY = -350; // Vertical velocity, negative to move up
 
       this.body.setVelocity(velocityX, velocityY);
+      if (player === 'R') {
+	this.flipX = true;
+	this.setAngle(180);
+	this.body.setVelocity(-velocityX, velocityY);
+      }
 
     }
 

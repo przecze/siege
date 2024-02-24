@@ -4,6 +4,7 @@ import Rider from '../units/rider';
 import Arrow from '../units/arrow';	
 import Archer from '../units/archer';
 
+
 export default class Battlefield {
   constructor(scene) {
     this.scene = scene;
@@ -18,66 +19,68 @@ export default class Battlefield {
     };
     this.playerHealth = 1000;
     this.spawnEnemyTimer = scene.time.addEvent({
-      delay: 3200,
+      delay: 3000,
       callback: this.spawnEnemyUnit,
       callbackScope: this,
       loop: true,
     });
-    this.spawnArrowTimer = scene.time.addEvent({
-        delay: 1000,
-        callback: this.spawnArrowEvent,
-        callbackScope: this,
-        loop: true,
-    });
     this.timer = 100;
   }
 
-  spawnArrowEvent() {
-    this.spawnUnit('archer', 'L');
-  }
   spawnEnemyUnit() {
     let unitType;
     let rand = Math.random(); // generates a random number between 0 and 1
     
     if (rand < 0.2) {
       unitType = 'rider';
-    } else if (rand < 0.8) {
-      unitType = 'infantry';
+      this.spawnUnit(Rider, 'R');
+    } else if (rand < 0.6) {
+      this.spawnUnit(Infantry, 'R');
     } else {
-      unitType = 'archer';
+      this.spawnUnit(Archer, 'R');
     }
-    this.spawnUnit(unitType, 'R');
   }
 
+  spawnArrow(x, player) {
+    const y = this.scene.sys.game.config.height * 5 / 6;
+    this.spawnUnit(Arrow, player, x, y);
+  }
 
-  spawnUnit(unitType, player) {
-    const startPosition = {
-      x: Math.floor(Math.random()*30),
-      y: this.scene.sys.game.config.height * 5 / 6, };
-    if (player == 'R') {
-      startPosition.x = this.enemyCastle.x - 20;
+  spawnUnit(unitType, player, x, y) {
+    if (x === undefined) {
+        x = (player === 'L') ?
+                    Math.floor(Math.random() * 30)
+                    : this.enemyCastle.x - Math.floor(Math.random() * 30);
     }
-    let unit;
-    switch (unitType) {
-      case 'infantry':
-        unit = new Infantry(this.scene, startPosition.x, startPosition.y, player);
-        break;
-      case 'rider':
-        unit = new Rider(this.scene, startPosition.x, startPosition.y, player);
-        break;
-      case 'archer':
-        unit = new Archer(this.scene, startPosition.x, startPosition.y, player);
-	break;
-      case 'arrow':
-        unit = new Arrow(this.scene, startPosition.x, startPosition.y, player);
-        break;
-      default:
-        console.warn(`Unknown unit type: ${unitType}`);
-        return;
-    } 
+    y = y || this.scene.sys.game.config.height * 5 / 6;
+    const startPosition = { x, y };
+  
+    let UnitClass;
+    if (typeof unitType === 'string') {
+      // Map the string-based unit type to the corresponding class
+      const unitClasses = {
+        'infantry': Infantry,
+        'rider': Rider,
+        'arrow': Arrow,
+        'archer': Archer,
+      };
+      UnitClass = unitClasses[unitType.toLowerCase()];
+    } else {
+      // If a class is passed directly, use it
+      UnitClass = unitType;
+    }
+  
+    if (!UnitClass) {
+      console.error(`Unknown unit type: ${unitType}`);
+      return;
+    }
+  
+    // Create a new instance of the unit and add it to the battlefield
+    const unit = new UnitClass(this.scene, startPosition.x, startPosition.y, player);
     this.units.push(unit);
+  
   }
-
+  
 
   handleCombat() {
     for (let i = 0; i < this.units.length; i++) {
@@ -136,12 +139,10 @@ export default class Battlefield {
       if (unit.player == 'L' && unit.x >= this.enemyCastle.x - 10) {
         this.enemyCastle.health -= unit.health; // Reduce the castle's health by the unit's attack power
         unit.destroy(); // Destroy the unit after it deals damage to the castle
-        console.log(this.enemyCastle.health);
       }
       if (unit.player == 'R' && unit.x <= 10) {
         this.playerHealth -= unit.health; // Reduce the castle's health by the unit's attack power
         unit.destroy(); // Destroy the unit after it deals damage to the castle
-        console.log(this.playerHealth);
       }
     });
 

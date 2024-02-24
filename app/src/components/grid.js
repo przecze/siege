@@ -161,13 +161,31 @@ export default class Grid extends Phaser.GameObjects.Container {
       const { row, col } = pattern.position;
       const size = pattern.size;
 
-      const unitTexture = this.scene.textures.get(pattern.unit);
-      const unitWidth = unitTexture.source[0].width;
-      const unitHeight = unitTexture.source[0].height;
+			const unitTexture = this.scene.textures.get(pattern.unit);
 
-      const scaleX = 8 * 0.8 * size.width * this.cellSize / unitWidth;
-      const scaleY = 8 * 0.8 * size.height * this.cellSize / unitHeight;
-      const scale = Math.min(scaleX, scaleY) * (pattern.unit === 'archer' ? 0.5 : 1);
+			let unitWidth, unitHeight;
+
+			// Check if the texture is from a spritesheet
+			if (unitTexture.frames && Object.keys(unitTexture.frames).length > 1) {
+					// Spritesheet case: Get dimensions of the first frame
+					const frame = unitTexture.frames[Object.keys(unitTexture.frames)[0]];
+					unitWidth = frame.cutWidth;
+					unitHeight = frame.cutHeight;
+			} else {
+					// Single image case: Use the source image dimensions
+					unitWidth = unitTexture.source[0].width;
+					unitHeight = unitTexture.source[0].height;
+			}
+
+      const desiredWidth = size.width * this.cellSize * 0.97;
+      const desiredHeight = size.height * this.cellSize * 0.97;
+
+      const scaleX = desiredWidth / unitWidth;
+      const scaleY = desiredHeight / unitHeight;
+      const scale = Math.min(scaleX, scaleY);
+
+      const rescaledWidth = unitWidth * scale;
+      const rescaledHeight = unitHeight * scale;
 
       const unitOverlayBg = new Phaser.GameObjects.Rectangle(
         this.scene,
@@ -183,14 +201,11 @@ export default class Grid extends Phaser.GameObjects.Container {
 
       const unitOverlaySprite = new Phaser.GameObjects.Image(
         this.scene,
-        col * this.cellSize + (size.width * this.cellSize - this.cellSize * scale) / 2,
-        (row - size.height + 1) * this.cellSize - (this.cellSize - this.cellSize * scale) / 2,
+        col * this.cellSize + (size.width * this.cellSize - rescaledWidth) / 2,
+        (row - size.height + 1) * this.cellSize - (this.cellSize * size.height - rescaledHeight) / 2,
         pattern.unit
       ).setOrigin(0, 0);
       unitOverlaySprite.setScale(scale);
-      if (pattern.unit === 'archer') {
-        unitOverlaySprite.flipX = !unitOverlaySprite.flipX;
-      }
       this.unitOverlayGroup.add(unitOverlaySprite);
       this.add(unitOverlaySprite);
     });
@@ -205,10 +220,6 @@ export default class Grid extends Phaser.GameObjects.Container {
       const selectedBlock = this.grid[oldRow][oldCol];
       const currentBlock = this.grid[newRow][newCol];
 
-      console.log('Swapping blocks...');
-      console.log('Selected Block:', selectedBlock);
-      console.log('Current Block:', currentBlock);
-
       // Swap the position of the two blocks
       const currentX = currentBlock.x;
       const currentY = currentBlock.y;
@@ -219,16 +230,9 @@ export default class Grid extends Phaser.GameObjects.Container {
       this.grid[newRow][newCol] = selectedBlock;
       this.grid[oldRow][oldCol] = currentBlock;
 
-      console.log('Blocks swapped successfully.');
 
       // Check for patterns
       const matchedPatterns = this.patternMatcher.matchPatterns();
-
-      if (matchedPatterns.length > 0) {
-        console.log('Matched Patterns:', matchedPatterns);
-      } else {
-        console.log('No patterns matched.');
-      }
       this.runPatternCheck();
 
       this.selectedBlockOutline.visible = false;
