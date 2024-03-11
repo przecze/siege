@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import Grid from '../components/grid';
+import UnitPatternAtlas from '../components/unitPatternAtlas';
 import Battlefield from '../components/battlefield';
 import HealthTracker from '../components/healthTracker';
 
@@ -7,10 +8,10 @@ export default class GameScene extends Phaser.Scene {
   constructor() {
     super('game');
     this.isPaused = false;
+    window.b = this
   }
 
   create() {
-    window.b = this
     let bg = this.add.image(0, 0, 'background').setOrigin(0, 0);
     let scaleX = this.cameras.main.width / bg.width;
     let scaleY = this.cameras.main.height / bg.height;
@@ -79,6 +80,18 @@ export default class GameScene extends Phaser.Scene {
     this.input.keyboard.on('keydown-S', this.slowGame, this);
     this.input.keyboard.on('keydown-P', this.togglePause, this);
 
+    const atlasWidth = this.grid.cols * this.grid.cellSize
+			 * this.grid.scaleX * 2;
+    const atlasHeight = this.grid.rows * this.grid.cellSize
+			 * this.grid.scaleY* 2;
+    this.unitPatternAtlas = new UnitPatternAtlas(this, 0, 0, atlasWidth, atlasHeight);
+    this.input.keyboard.on('keydown-V', () => {
+      this.unitPatternAtlas.setVisible(true);
+    });
+    this.input.keyboard.on('keyup-V', () => {
+      this.unitPatternAtlas.setVisible(false);
+    });
+
     this.input.on('pointerdown', (pointer) => {
       const gridCoordinates = this.grid.getGridCoordinates(pointer.x, pointer.y);
       // only call touchBlockXY if the coordinates are inside the grid
@@ -107,9 +120,9 @@ export default class GameScene extends Phaser.Scene {
       { fontSize: '32px', fill: '#fff' }
     ).setOrigin(0.5, 0.5).setVisible(false);
 
-
   }
-    slowGame() {
+
+	slowGame() {
     // Modify the timeScale to slow down the game
     this.physics.world.timeScale *= 0.5;
   }

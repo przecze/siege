@@ -161,21 +161,21 @@ export default class Grid extends Phaser.GameObjects.Container {
       const { row, col } = pattern.position;
       const size = pattern.size;
 
-			const unitTexture = this.scene.textures.get(pattern.unit);
+      const unitTexture = this.scene.textures.get(pattern.unit);
 
-			let unitWidth, unitHeight;
+      let unitWidth, unitHeight;
 
-			// Check if the texture is from a spritesheet
-			if (unitTexture.frames && Object.keys(unitTexture.frames).length > 1) {
-					// Spritesheet case: Get dimensions of the first frame
-					const frame = unitTexture.frames[Object.keys(unitTexture.frames)[0]];
-					unitWidth = frame.cutWidth;
-					unitHeight = frame.cutHeight;
-			} else {
-					// Single image case: Use the source image dimensions
-					unitWidth = unitTexture.source[0].width;
-					unitHeight = unitTexture.source[0].height;
-			}
+      // Check if the texture is from a spritesheet
+      if (unitTexture.frames && Object.keys(unitTexture.frames).length > 1) {
+          // Spritesheet case: Get dimensions of the first frame
+          const frame = unitTexture.frames[Object.keys(unitTexture.frames)[0]];
+          unitWidth = frame.cutWidth;
+          unitHeight = frame.cutHeight;
+      } else {
+          // Single image case: Use the source image dimensions
+          unitWidth = unitTexture.source[0].width;
+          unitHeight = unitTexture.source[0].height;
+      }
 
       const desiredWidth = size.width * this.cellSize * 0.97;
       const desiredHeight = size.height * this.cellSize * 0.97;
