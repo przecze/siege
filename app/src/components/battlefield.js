@@ -41,6 +41,11 @@ export default class Battlefield {
     }
   }
 
+	updateDifficulty(difficulty) {
+		this.spawnEnemyTimer.delay = 5000 - 300 * difficulty;
+		console.log(this.spawnEnemyTimer.delay);
+	}
+
   spawnArrow(x, player) {
     const y = this.scene.sys.game.config.height * 5 / 6;
     this.spawnUnit(Arrow, player, x, y);

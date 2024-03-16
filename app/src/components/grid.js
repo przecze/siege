@@ -38,6 +38,16 @@ export default class Grid extends Phaser.GameObjects.Container {
         this.grid[row][col] = block;
       }
     }
+		let g = this.scene.add.graphics();
+		// golden border around two bottom rows
+		g.lineStyle(3, 0xFFD700, 1);
+		g.strokeRect(
+			0,
+		  (this.rows - 2) * this.cellSize * this.scaleY,
+			this.cols * this.cellSize * this.scaleX,
+			2 * this.cellSize * this.scaleY);
+		this.add(g);
+
   }
 
   resetGrid() {
