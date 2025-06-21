@@ -1,5 +1,5 @@
 # Use Node.js LTS (Long Term Support) as the base image
-FROM node:lts
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app

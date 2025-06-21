@@ -28,13 +28,18 @@ export default class Battlefield {
   }
 
   spawnEnemyUnit() {
+    // Don't spawn new enemies if the game is over
+    if (this.gameOver) {
+      return;
+    }
+    
     let unitType;
     let rand = Math.random(); // generates a random number between 0 and 1
     
     if (rand < 0.2) {
       unitType = 'rider';
       this.spawnUnit(Rider, 'R');
-    } else if (rand < 0.6) {
+    } else if (rand < 0.7) {
       this.spawnUnit(Infantry, 'R');
     } else {
       this.spawnUnit(Archer, 'R');
@@ -43,7 +48,6 @@ export default class Battlefield {
 
 	updateDifficulty(difficulty) {
 		this.spawnEnemyTimer.delay = 5000 - 300 * difficulty;
-		console.log(this.spawnEnemyTimer.delay);
 	}
 
   spawnArrow(x, player) {
@@ -164,6 +168,12 @@ export default class Battlefield {
     }
     if (this.timer <= 0) {
       this.gameOver = true;
+    }
+
+    // Stop enemy spawning when game is over
+    if (this.gameOver && this.spawnEnemyTimer) {
+      this.spawnEnemyTimer.remove();
+      this.spawnEnemyTimer = null;
     }
 
 
