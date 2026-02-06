@@ -1,5 +1,5 @@
-import Phaser from 'phaser';
-import PatternMatcher from './patternMatcher';
+import Phaser from "phaser";
+import PatternMatcher from "./patternMatcher";
 
 export default class Grid extends Phaser.GameObjects.Container {
   constructor(scene, x, y, rows, cols, cellSize) {
@@ -21,7 +21,7 @@ export default class Grid extends Phaser.GameObjects.Container {
   }
 
   createGrid() {
-    const images = ['wood', 'steel', 'magic', 'fire'];
+    const images = ["wood", "steel", "magic", "fire"];
     for (let row = 0; row < this.rows; row++) {
       this.grid[row] = [];
       for (let col = 0; col < this.cols; col++) {
@@ -30,24 +30,46 @@ export default class Grid extends Phaser.GameObjects.Container {
           this.scene,
           col * this.cellSize * this.scaleX,
           row * this.cellSize * this.scaleY,
-          imageKey
+          imageKey,
         ).setOrigin(0, 0);
-        block.setScale(this.cellSize/8)
+        block.setScale(this.cellSize / 8);
         block.color = imageKey;
         this.add(block);
         this.grid[row][col] = block;
       }
     }
-		let g = this.scene.add.graphics();
-		// golden border around two bottom rows
-		g.lineStyle(3, 0xFFD700, 1);
-		g.strokeRect(
-			0,
-		  (this.rows - 2) * this.cellSize * this.scaleY,
-			this.cols * this.cellSize * this.scaleX,
-			2 * this.cellSize * this.scaleY);
-		this.add(g);
+    this.craftAreaBorder = this.scene.add.graphics();
+    // golden border around two bottom rows
+    this.craftAreaBorder.lineStyle(3, 0xffd700, 1);
 
+    this.craftAreaBorder.strokeRect(
+      0,
+      (this.rows - 2) * this.cellSize * this.scaleY,
+      this.cols * this.cellSize * this.scaleX,
+      2 * this.cellSize * this.scaleY,
+    );
+
+    // add middle horizontal line
+    this.craftAreaBorder.strokeLineShape(
+      new Phaser.Geom.Line(
+        0,
+        (this.rows - 1) * this.cellSize * this.scaleY,
+        this.cols * this.cellSize * this.scaleX,
+        (this.rows - 1) * this.cellSize * this.scaleY,
+      ),
+    );
+    // add vertical lines
+    for (let i = 0; i < this.cols; i++) {
+      this.craftAreaBorder.strokeLineShape(
+        new Phaser.Geom.Line(
+          i * this.cellSize * this.scaleX,
+          (this.rows - 2) * this.cellSize * this.scaleY,
+          i * this.cellSize * this.scaleX,
+          this.rows * this.cellSize * this.scaleY,
+        ),
+      );
+    }
+    this.add(this.craftAreaBorder);
   }
 
   resetGrid() {
@@ -56,13 +78,14 @@ export default class Grid extends Phaser.GameObjects.Container {
     }
     this.isGridResetting = true;
     this.cursorObj.visible = false;
+    this.craftAreaBorder.setVisible(false);
     const matchedPatterns = this.patternMatcher.matchPatterns();
     matchedPatterns.forEach((pattern) => {
-      this.scene.battlefield.spawnUnit(pattern.unit, 'L');
+      this.scene.battlefield.spawnUnit(pattern.unit, "L");
     });
-    const resetDuration = matchedPatterns.length === 0 ? 1200 : 100; 
+    const resetDuration = matchedPatterns.length === 0 ? 1200 : 100;
     this.clearUnitOverlays();
-    const images = ['wood', 'steel', 'magic', 'fire'];
+    const images = ["wood", "steel", "magic", "fire"];
     let completeCount = 0;
     const totalCount = this.rows * this.cols;
     for (let row = 0; row < this.grid.length; row++) {
@@ -77,7 +100,7 @@ export default class Grid extends Phaser.GameObjects.Container {
           targets: block,
           x: targetX,
           duration: resetDuration,
-          ease: 'Linear',
+          ease: "Linear",
           onComplete: () => {
             const imageKey = Phaser.Math.RND.pick(images);
             this.grid[row][col].setTexture(imageKey);
@@ -88,9 +111,10 @@ export default class Grid extends Phaser.GameObjects.Container {
             this.grid[row][col].color = imageKey;
             completeCount++;
             if (completeCount === totalCount) {
-              this.runPatternCheck();
+              this.craftAreaBorder.setVisible(true);
               this.isGridResetting = false;
               this.cursorObj.visible = true;
+              this.runPatternCheck();
             }
           },
         });
@@ -98,18 +122,17 @@ export default class Grid extends Phaser.GameObjects.Container {
     }
   }
 
-
   createCursor() {
-    this.cursorObj = new Phaser.GameObjects.Rectangle(
-      this.scene,
+    this.cursorObj = this.scene.add.graphics();
+    this.cursorObj.lineStyle(4, 0xffffff, 1);
+    this.cursorObj.strokeRect(
       0,
-      this.cellSize * (this.rows - 1),
+      0,
       this.cellSize * this.scaleX,
       this.cellSize * this.scaleY,
-      0xffffff,
-      0.5
-    ).setOrigin(0, 0);
+    );
     this.add(this.cursorObj);
+    this.moveCursor(0, 0);
     this.selectedPosition = null;
     this.selectedBlockOutline = new Phaser.GameObjects.Rectangle(
       this.scene,
@@ -118,7 +141,7 @@ export default class Grid extends Phaser.GameObjects.Container {
       this.cellSize * this.scaleX,
       this.cellSize * this.scaleY,
       0xffffff,
-      1
+      0.5,
     ).setOrigin(0, 0);
     this.selectedBlockOutline.setStrokeStyle(2, 0xffffff);
     this.selectedBlockOutline.visible = false;
@@ -130,7 +153,7 @@ export default class Grid extends Phaser.GameObjects.Container {
     this.cursor.row = Phaser.Math.Clamp(this.cursor.row + y, 0, this.rows - 1);
     this.cursorObj.setPosition(
       this.cursor.col * this.cellSize,
-      this.cursor.row * this.cellSize
+      this.cursor.row * this.cellSize,
     );
   }
 
@@ -150,20 +173,18 @@ export default class Grid extends Phaser.GameObjects.Container {
     return { col, row };
   }
 
-
   touchBlockXY(row, col) {
     // Move the cursor to the clicked block
     this.cursor.col = col;
     this.cursor.row = row;
     this.cursorObj.setPosition(
       this.cursor.col * this.cellSize,
-      this.cursor.row * this.cellSize
+      this.cursor.row * this.cellSize,
     );
 
     // Trigger a block swap
     this.swapBlocks();
   }
-
 
   runPatternCheck() {
     const matchedPatterns = this.patternMatcher.matchPatterns();
@@ -177,14 +198,14 @@ export default class Grid extends Phaser.GameObjects.Container {
 
       // Check if the texture is from a spritesheet
       if (unitTexture.frames && Object.keys(unitTexture.frames).length > 1) {
-          // Spritesheet case: Get dimensions of the first frame
-          const frame = unitTexture.frames[Object.keys(unitTexture.frames)[0]];
-          unitWidth = frame.cutWidth;
-          unitHeight = frame.cutHeight;
+        // Spritesheet case: Get dimensions of the first frame
+        const frame = unitTexture.frames[Object.keys(unitTexture.frames)[0]];
+        unitWidth = frame.cutWidth;
+        unitHeight = frame.cutHeight;
       } else {
-          // Single image case: Use the source image dimensions
-          unitWidth = unitTexture.source[0].width;
-          unitHeight = unitTexture.source[0].height;
+        // Single image case: Use the source image dimensions
+        unitWidth = unitTexture.source[0].width;
+        unitHeight = unitTexture.source[0].height;
       }
 
       const desiredWidth = size.width * this.cellSize * 0.97;
@@ -203,8 +224,8 @@ export default class Grid extends Phaser.GameObjects.Container {
         (row - size.height + 1) * this.cellSize,
         size.width * this.cellSize,
         size.height * this.cellSize,
-        0xADD8E6,
-        0.5
+        0xadd8e6,
+        0.4,
       ).setOrigin(0, 0);
       this.unitOverlayGroup.add(unitOverlayBg);
       this.add(unitOverlayBg);
@@ -212,8 +233,9 @@ export default class Grid extends Phaser.GameObjects.Container {
       const unitOverlaySprite = new Phaser.GameObjects.Image(
         this.scene,
         col * this.cellSize + (size.width * this.cellSize - rescaledWidth) / 2,
-        (row - size.height + 1) * this.cellSize - (this.cellSize * size.height - rescaledHeight) / 2,
-        pattern.unit
+        (row - size.height + 1) * this.cellSize -
+          (this.cellSize * size.height - rescaledHeight) / 2,
+        pattern.unit,
       ).setOrigin(0, 0);
       unitOverlaySprite.setScale(scale);
       this.unitOverlayGroup.add(unitOverlaySprite);
@@ -240,23 +262,17 @@ export default class Grid extends Phaser.GameObjects.Container {
       this.grid[newRow][newCol] = selectedBlock;
       this.grid[oldRow][oldCol] = currentBlock;
 
-
       // Check for patterns
-      const matchedPatterns = this.patternMatcher.matchPatterns();
       this.runPatternCheck();
 
       this.selectedBlockOutline.visible = false;
       this.selectedPosition = null;
     } else {
       this.selectedPosition = { row: this.cursor.row, col: this.cursor.col };
-      const selectedBlock = this.grid[this.selectedPosition.row][this.selectedPosition.col];
+      const selectedBlock =
+        this.grid[this.selectedPosition.row][this.selectedPosition.col];
       this.selectedBlockOutline.setPosition(selectedBlock.x, selectedBlock.y);
       this.selectedBlockOutline.visible = true;
     }
-  }
-
-
-  checkPatterns() {
-    const matchedPatterns = this.patternMatcher.matchPatterns();
   }
 }
