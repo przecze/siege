@@ -25,6 +25,7 @@ export default class Battlefield {
       loop: true,
     });
     this.timer = 100;
+
   }
 
   spawnEnemyUnit() {

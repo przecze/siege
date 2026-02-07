@@ -13,7 +13,6 @@ export default class Arrow extends Unit {
     };
     super(scene, x, y, params);
 
-    // Scale the arrow
     this.setScale(2);
 
     // Physics properties
@@ -35,6 +34,9 @@ export default class Arrow extends Unit {
   update() {
     this.rotation =
       Math.atan2(this.body.velocity.y, this.body.velocity.x);
+      if (this.player === "R") {
+        this.rotation = Math.PI + this.rotation;
+      }
 		if (this.y > this.scene.sys.game.config.height - 50) {
 			this.destroy();
 		}
