@@ -1,4 +1,4 @@
-.PHONY: lock build up down logs
+.PHONY: lock build up down logs assets
 
 # Regenerate package-lock.json from package.json using the same Node version as the container
 lock:
@@ -22,3 +22,6 @@ down:
 
 logs:
 	docker compose logs -f --tail 30
+
+assets:
+	docker compose run --rm assets

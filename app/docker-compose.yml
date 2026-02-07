@@ -23,6 +23,17 @@ services:
     profiles:
       - test
 
+  assets:
+    image: python:3.13-slim
+    volumes:
+      - ../assets:/assets
+      - ./public/assets:/app/public/assets
+    working_dir: /assets
+    command: >-
+      sh -c "pip install uv --quiet && uv run unpack.py"
+    profiles:
+      - tools
+
 networks:
   nginx-proxy:
     external: true

@@ -14,7 +14,7 @@ export default class Arrow extends Unit {
     super(scene, x, y, params);
 
     // Scale the arrow
-    this.setScale(1); // Scale up x2
+    this.setScale(2);
 
     // Physics properties
     scene.physics.world.enable(this);
@@ -28,15 +28,13 @@ export default class Arrow extends Unit {
 
     this.body.setVelocity(velocityX, velocityY);
     if (player === "R") {
-      this.flipX = true;
-      this.setAngle(180);
       this.body.setVelocity(-velocityX, velocityY);
     }
   }
 
   update() {
     this.rotation =
-      Math.atan2(this.body.velocity.y, this.body.velocity.x) + Math.PI / 2;
+      Math.atan2(this.body.velocity.y, this.body.velocity.x);
 		if (this.y > this.scene.sys.game.config.height - 50) {
 			this.destroy();
 		}

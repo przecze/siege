@@ -1,0 +1,4 @@
+# Third-party assets (not redistributable)
+# Track scripts, ignore everything else in assets/
+/assets/*
+!/assets/*.py
