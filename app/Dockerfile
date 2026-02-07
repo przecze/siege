@@ -1,4 +1,4 @@
-# Use Node.js LTS (Long Term Support) as the base image
+# Use Node.js LTS as the base image
 FROM node:18-alpine
 
 # Set working directory
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expose the port the app will run on
-EXPOSE 8080 
+EXPOSE 8000
 
 # Start the development server
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
