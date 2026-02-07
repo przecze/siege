@@ -1,20 +1,34 @@
-# Use Node.js LTS as the base image
-FROM node:22-alpine
+# Multi-purpose Dockerfile - works for both dev and production
+FROM node:22-alpine AS builder
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
-
-# Install dependencies (ci uses lockfile for reproducible builds)
+COPY package.json package-lock.json* ./
 RUN npm ci
 
-# Copy source code and other files to the working directory
+COPY . .
+RUN npm run build
+
+# Production stage with nginx
+FROM nginx:alpine AS production
+
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf.template /etc/nginx/templates/nginx.conf.template
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+# Development stage - just node with dependencies
+FROM node:22-alpine AS development
+
+WORKDIR /app
+
+COPY package.json package-lock.json* ./
+RUN npm ci
+
 COPY . .
 
-# Expose the port the app will run on
-EXPOSE 8000
+EXPOSE 3000
 
-# Start the development server
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]

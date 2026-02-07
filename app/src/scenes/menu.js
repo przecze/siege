@@ -6,9 +6,6 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   create() {
-    // Uncomment this line to skip tutorial during development
-    // this.scene.start('game');
-
     const { width, height } = this.sys.game.config;
     
     this.currentPage = 0;

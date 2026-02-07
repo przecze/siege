@@ -1,19 +1,15 @@
-.PHONY: lock build up down logs assets
+.PHONY: lock build up down logs dev dev-down dev-logs rebuild assets
 
 # Regenerate package-lock.json from package.json using the same Node version as the container
 lock:
 	docker run --rm -v $(PWD)/package.json:/app/package.json -v $(PWD):/out -w /app node:22-alpine \
 		sh -c "npm install --package-lock-only && cp package-lock.json /out/"
 
-# Rebuild the container (includes npm ci with updated lockfile)
+# Build the production image
 build:
-	docker compose up --build -d
+	docker compose build site
 
-# Full rebuild with fresh node_modules volume
-rebuild:
-	docker compose down -v
-	docker compose up --build -d
-
+# Start the production site (default)
 up:
 	docker compose up -d
 
@@ -22,6 +18,21 @@ down:
 
 logs:
 	docker compose logs -f --tail 30
+
+# Start dev services (vite + nginx)
+dev:
+	docker compose --profile dev up --build -d
+
+dev-down:
+	docker compose --profile dev down
+
+dev-logs:
+	docker compose --profile dev logs -f --tail 30
+
+# Full rebuild with fresh node_modules volume
+rebuild:
+	docker compose --profile dev down -v
+	docker compose --profile dev up --build -d
 
 assets:
 	docker compose run --rm assets
