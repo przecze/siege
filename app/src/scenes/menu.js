@@ -339,7 +339,7 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   showInfantryPage() {
-    this.showUnitPage('infantry', 'INFANTRY', 
+    this.showUnitPage('soldier', 'INFANTRY', 
       'Stack STEEL over WOOD to create brave foot soldiers',
       'Strong melee fighters that form the backbone of your army'
     );
@@ -353,7 +353,7 @@ export default class MenuScene extends Phaser.Scene {
   }
 
   showRiderPage() {
-    this.showUnitPage('rider', 'RAIDER',
+    this.showUnitPage('lancer', 'RAIDER',
       'Create a 2×2 pattern: FIRE and STEEL on both rows',
       'Fast warriors that charge into battle and deal a lot of damage'
     );
@@ -375,25 +375,10 @@ export default class MenuScene extends Phaser.Scene {
     // Show pattern
     this.showPattern(unitPattern, width * 0.3, height * 0.4);
     
-    // Show unit sprite
+    // Show unit sprite with run animation from Aseprite atlas
     const unitSprite = this.add.sprite(width * 0.7, height * 0.45, unitKey);
-    if (unitKey === 'archer') {
-      unitSprite.setScale(2);
-    } else {
-      unitSprite.setScale(1.5);
-      // Add walking animation for infantry and riders
-      if (unitSprite.anims) {
-        const frameStart = unitKey === 'infantry' ? 6 : 12;
-        const frameEnd = unitKey === 'infantry' ? 11 : 17;
-        unitSprite.anims.create({
-          key: 'walk',
-          frames: unitSprite.anims.generateFrameNumbers(unitKey, { start: frameStart, end: frameEnd }),
-          frameRate: 6,
-          repeat: -1
-        });
-        unitSprite.play('walk');
-      }
-    }
+    unitSprite.setScale(3);
+    unitSprite.play({ key: unitKey + '-run', repeat: -1 });
 
     const patternDesc = this.add.text(width / 2, height * 0.65, pattern, {
       fontSize: '18px',
@@ -463,22 +448,11 @@ export default class MenuScene extends Phaser.Scene {
 
     // Show example units marching
     const unitY = height * 0.6;
-    const units = ['infantry', 'archer', 'rider'];
+    const units = ['soldier', 'archer', 'lancer'];
     units.forEach((unit, index) => {
       const sprite = this.add.sprite(width * 0.2 + index * 150, unitY, unit);
-      sprite.setScale(1.2);
-      if (unit !== 'archer') {
-        sprite.anims.create({
-          key: 'march',
-          frames: sprite.anims.generateFrameNumbers(unit, { 
-            start: unit === 'infantry' ? 6 : 12, 
-            end: unit === 'infantry' ? 11 : 17 
-          }),
-          frameRate: 8,
-          repeat: -1
-        });
-        sprite.play('march');
-      }
+      sprite.setScale(2);
+      sprite.play({ key: unit + '-run', repeat: -1 });
       this.pageContainer.add(sprite);
     });
 

@@ -1,0 +1,6 @@
+FROM python:3.13-slim
+
+RUN pip install --quiet --no-cache-dir uv==0.10.0 && \
+    uv pip install --system --quiet pillow
+
+WORKDIR /assets

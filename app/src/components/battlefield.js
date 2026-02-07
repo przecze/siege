@@ -38,7 +38,7 @@ export default class Battlefield {
     let rand = Math.random(); // generates a random number between 0 and 1
     
     if (rand < 0.2) {
-      unitType = 'rider';
+      unitType = 'lancer';
       this.spawnUnit(Rider, 'R');
     } else if (rand < 0.7) {
       this.spawnUnit(Infantry, 'R');
@@ -69,8 +69,8 @@ export default class Battlefield {
     if (typeof unitType === 'string') {
       // Map the string-based unit type to the corresponding class
       const unitClasses = {
-        'infantry': Infantry,
-        'rider': Rider,
+        'soldier': Infantry,
+        'lancer': Rider,
         'arrow': Arrow,
         'archer': Archer,
       };

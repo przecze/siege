@@ -1,22 +1,28 @@
 # /// script
 # requires-python = ">=3.13"
+# dependencies = ["pillow"]
 # ///
-"""Unpack the Tiny RPG Character Asset Pack and copy game-ready assets."""
+"""Unpack the Tiny RPG Character Asset Pack and process game-ready assets."""
 
+import json
 import shutil
 import sys
 import zipfile
 from pathlib import Path
+
+from PIL import Image
 
 ASSETS_DIR = Path(__file__).resolve().parent
 ZIP_GLOB = "Tiny RPG Character Asset Pack*.zip"
 UNPACK_DIR = ASSETS_DIR / "unpacked"
 
 # Where the app serves static assets from
-APP_ASSETS = ASSETS_DIR.parent / "app" / "public" / "assets"
+APP_ASSETS = ASSETS_DIR.parent / "app" / "public" / "assets" / "units"
 
 # Find the top-level directory inside the zip (name varies by version)
 PACK_GLOB = "Tiny RPG Character Asset Pack*"
+
+FRAME_SIZE = 100  # Each frame is 100x100 in the 100x100 character sheets
 
 
 def find_pack_root() -> Path | None:
@@ -61,8 +67,138 @@ def copy_asset(src: Path, dst: Path) -> None:
     print(f"  {dst.name} (copied)")
 
 
+def process_character(
+    char_dir: Path,
+    char_name: str,
+    output_key: str,
+    animations: list[tuple[str, str]],
+) -> None:
+    """Build a combined spritesheet + Aseprite JSON from individual strip PNGs.
+
+    Each frame is individually trimmed to its minimal bounding box.  The JSON
+    uses Aseprite's trimmed-sprite format so Phaser knows how to position each
+    frame within the original canvas.  ``sourceSize`` is the original frame
+    size (100x100) so ``setOrigin(0.5, 1)`` anchors at the bottom-center of
+    the virtual canvas — i.e. the character's feet.
+
+    Args:
+        char_dir: Directory containing the strip PNGs (e.g. .../Soldier/Soldier/)
+        char_name: Character name prefix in filenames (e.g. "Soldier")
+        output_key: Output filename stem (e.g. "soldier" → soldier.png + soldier.json)
+        animations: List of (tag_name, strip_suffix) tuples, e.g.
+                    [("idle", "Idle"), ("run", "Walk"), ("attack", "Attack01")]
+    """
+    # --- Load all strips and extract individual frames ---
+    all_frames: list[tuple[str, Image.Image]] = []  # (tag_name, frame_img)
+    tag_ranges: list[tuple[str, int, int]] = []  # (tag_name, start, end)
+
+    for tag_name, strip_suffix in animations:
+        strip_path = char_dir / f"{char_name}-{strip_suffix}.png"
+        if not strip_path.exists():
+            print(f"  WARNING: {strip_path.name} not found, skipping")
+            continue
+        img = Image.open(strip_path)
+        frame_count = img.width // FRAME_SIZE
+        tag_start = len(all_frames)
+        for i in range(frame_count):
+            x = i * FRAME_SIZE
+            frame = img.crop((x, 0, x + FRAME_SIZE, FRAME_SIZE))
+            all_frames.append((tag_name, frame))
+        tag_ranges.append((tag_name, tag_start, len(all_frames) - 1))
+
+    if not all_frames:
+        print(f"  ERROR: No frames found for {char_name}")
+        return
+
+    # --- Find unified content bbox across ALL frames ---
+    uni_min_x, uni_min_y = FRAME_SIZE, FRAME_SIZE
+    uni_max_x, uni_max_y = 0, 0
+    for _, frame in all_frames:
+        bbox = frame.getbbox()
+        if bbox:
+            uni_min_x = min(uni_min_x, bbox[0])
+            uni_min_y = min(uni_min_y, bbox[1])
+            uni_max_x = max(uni_max_x, bbox[2])
+            uni_max_y = max(uni_max_y, bbox[3])
+
+    src_w = uni_max_x - uni_min_x
+    src_h = uni_max_y - uni_min_y
+    print(f"  {char_name}: sourceSize {src_w}x{src_h} "
+          f"(from {FRAME_SIZE}x{FRAME_SIZE}, offset {uni_min_x},{uni_min_y})")
+
+    # --- Per-frame trim: find each frame's tight bbox ---
+    trimmed: list[tuple[Image.Image, tuple[int, int, int, int]]] = []
+    max_h = 0
+    for _, frame in all_frames:
+        bbox = frame.getbbox()
+        if bbox:
+            cropped = frame.crop(bbox)
+            trimmed.append((cropped, bbox))
+            max_h = max(max_h, cropped.height)
+        else:
+            # Fully transparent frame — keep as 1x1
+            trimmed.append((Image.new("RGBA", (1, 1)), (0, 0, 1, 1)))
+
+    # --- Pack into a single-row spritesheet (bottom-aligned) ---
+    total_w = sum(img.width for img, _ in trimmed)
+    sheet = Image.new("RGBA", (total_w, max_h))
+
+    frames_json = []
+    sheet_x = 0
+    for idx, ((cropped, bbox), (_, _orig)) in enumerate(zip(trimmed, all_frames)):
+        cw, ch = cropped.size
+        sheet.paste(cropped, (sheet_x, max_h - ch))
+
+        # spriteSourceSize is relative to the unified bbox, not the full 100x100
+        frames_json.append({
+            "filename": str(idx),
+            "frame": {"x": sheet_x, "y": max_h - ch, "w": cw, "h": ch},
+            "rotated": False,
+            "trimmed": True,
+            "spriteSourceSize": {
+                "x": bbox[0] - uni_min_x,
+                "y": bbox[1] - uni_min_y,
+                "w": cw, "h": ch,
+            },
+            "sourceSize": {"w": src_w, "h": src_h},
+            "duration": 100,
+        })
+        sheet_x += cw
+
+    frame_tags = [
+        {"name": f"{output_key}-{name}", "from": start, "to": end, "direction": "forward"}
+        for name, start, end in tag_ranges
+    ]
+
+    atlas_json = {
+        "frames": frames_json,
+        "meta": {
+            "app": "https://www.aseprite.org/",
+            "version": "1.3",
+            "image": f"{output_key}.png",
+            "format": "RGBA8888",
+            "size": {"w": total_w, "h": max_h},
+            "scale": "1",
+            "frameTags": frame_tags,
+        },
+    }
+
+    # Write outputs
+    out_png = APP_ASSETS / f"{output_key}.png"
+    out_json = APP_ASSETS / f"{output_key}.json"
+    out_png.parent.mkdir(parents=True, exist_ok=True)
+
+    sheet.save(out_png)
+    out_json.write_text(json.dumps(atlas_json, indent=2))
+
+    savings = (1 - total_w * max_h / (len(all_frames) * FRAME_SIZE ** 2)) * 100
+    print(f"  {char_name}: {len(all_frames)} frames, sheet {total_w}x{max_h} "
+          f"(sourceSize {src_w}x{src_h}, {savings:.0f}% smaller)")
+    print(f"  {output_key}.png + {output_key}.json ({len(frame_tags)} animations)")
+
+
 def publish_assets() -> None:
-    """Copy processed assets into the app's public directory."""
+    """Copy and process assets into the app's public directory."""
     pack = find_pack_root()
     if not pack:
         return
@@ -73,6 +209,41 @@ def publish_assets() -> None:
     copy_asset(
         pack / "Arrow(Projectile)" / "Arrow01(32x32).png",
         APP_ASSETS / "arrow.png",
+    )
+
+    chars_dir = pack / "Characters(100x100)"
+
+    # Soldier → infantry
+    process_character(
+        chars_dir / "Soldier" / "Soldier",
+        "Soldier",
+        "soldier",
+        [
+            ("run", "Walk"),
+            ("attack", "Attack01"),
+        ],
+    )
+
+    # Lancer → rider
+    process_character(
+        chars_dir / "Lancer" / "Lancer",
+        "Lancer",
+        "lancer",
+        [
+            ("run", "Walk01"),
+            ("attack", "Attack01"),
+        ],
+    )
+
+    # Archer
+    process_character(
+        chars_dir / "Archer" / "Archer",
+        "Archer",
+        "archer",
+        [
+            ("run", "Walk"),
+            ("attack", "Attack01"),
+        ],
     )
 
 

@@ -112,6 +112,11 @@ export default class GameScene extends Phaser.Scene {
 
     this.units = [];
 
+    // Create animations from Aseprite atlas data
+    this.anims.createFromAseprite("soldier");
+    this.anims.createFromAseprite("lancer");
+    this.anims.createFromAseprite("archer");
+
     const unitPatterns = this.cache.json.get("unitPatterns");
     this.grid.patternMatcher.setPatterns(unitPatterns);
     this.grid.runPatternCheck();
@@ -162,42 +167,12 @@ export default class GameScene extends Phaser.Scene {
 
   preload() {
     this.load.image("background", "./assets/background.png");
-    this.load.image("arrow", "./assets/arrow.png");
-    // Load the spritesheet
-    this.load.spritesheet("infantry", "./assets/infantry.webp", {
-      frameWidth: 77,
-      frameHeight: 90,
-    });
-    this.load.spritesheet("infantry_att", "./assets/infantry.webp", {
-      frameWidth: 110,
-      frameHeight: 87,
-    });
-    this.load.spritesheet("rider", "./assets/rider.webp", {
-      frameWidth: 77,
-      frameHeight: 90,
-    });
-    this.load.spritesheet("rider_att", "./assets/rider.webp", {
-      frameWidth: 120,
-      frameHeight: 87,
-    });
+    this.load.image("arrow", "./assets/units/arrow.png");
 
-    // Load Archer animation frames
-    const archerAnimationPaths = {
-      Idle: { start: 1, end: 6, prefix: "Idle_" },
-      Run: { start: 1, end: 6, prefix: "Move_" },
-      Shoot: { start: 1, end: 12, prefix: "Skill2_" },
-      Attack: { start: 1, end: 9, prefix: "Attack_" },
-    };
-
-    for (const [animKey, animData] of Object.entries(archerAnimationPaths)) {
-      for (let i = animData.start; i <= animData.end; i++) {
-        let frameKey = `archer_${animKey.toLowerCase()}_${i}`;
-        let fileName = `${animData.prefix}${i}.png`;
-        this.load.image(frameKey, `assets/archer/ani_cropped/${fileName}`);
-      }
-    }
-    // also default archer texture for grid overlay
-    this.load.image("archer", "assets/archer/ani_cropped/Idle_1.png");
+    // Unit spritesheets — loaded as Aseprite atlases
+    this.load.aseprite("soldier", "./assets/units/soldier.png", "./assets/units/soldier.json");
+    this.load.aseprite("lancer", "./assets/units/lancer.png", "./assets/units/lancer.json");
+    this.load.aseprite("archer", "./assets/units/archer.png", "./assets/units/archer.json");
   }
 
   update() {

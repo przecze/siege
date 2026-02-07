@@ -15,18 +15,10 @@ export default class BootScene extends Phaser.Scene {
     // Load unit patterns data
     this.load.json('unitPatterns', './data/unitPatterns.json');
     
-    // Load unit spritesheets for tutorial use
-    this.load.spritesheet("infantry", "./assets/infantry.webp", {
-      frameWidth: 77,
-      frameHeight: 90,
-    });
-    this.load.spritesheet("rider", "./assets/rider.webp", {
-      frameWidth: 77,
-      frameHeight: 90,
-    });
-    
-    // Load archer sprite (using first idle frame as default)
-    this.load.image("archer", "assets/archer/ani_cropped/Idle_1.png");
+    // Unit spritesheets for tutorial — loaded as Aseprite atlases
+    this.load.aseprite("soldier", "./assets/units/soldier.png", "./assets/units/soldier.json");
+    this.load.aseprite("lancer", "./assets/units/lancer.png", "./assets/units/lancer.json");
+    this.load.aseprite("archer", "./assets/units/archer.png", "./assets/units/archer.json");
   }
 
   create() {

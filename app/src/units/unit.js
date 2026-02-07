@@ -5,7 +5,7 @@ class Unit extends Phaser.GameObjects.Sprite {
     super(scene, x, y, params.textureKey);
     this.scene = scene;
     this.player = params.player;
-
+    this.textureKey = params.textureKey;
 
     this.attackPower = params.attackPower;
     this.health = params.health;
@@ -19,22 +19,23 @@ class Unit extends Phaser.GameObjects.Sprite {
     this.hasHealthBar = params.hasHealthBar === undefined ? true : params.hasHealthBar;
     if (this.hasHealthBar) {
       let healthBarWidth = this.displayWidth * 0.8;
-      this.healthBar = new HealthBar(scene, this.x, this.y - this.displayHeight / 2 - 20, healthBarWidth, 10);
+      this.healthBar = new HealthBar(scene, this.x - healthBarWidth / 2, this.y - this.displayHeight / 2 - 5, healthBarWidth, 10);
     }
     scene.add.existing(this);
   }
 
   update() {
     if (!this.isEngaged) {
-      this.anims.play('run', true);
+      this.anims.play(this.textureKey + '-run', true);
       this.x += this.speed;
       if (this.hasHealthBar) {
-        this.healthBar.x = this.x - this.displayWidth/2;
-        this.healthBar.y = this.y - this.displayHeight/2 - 20;
+        let healthBarWidth = this.displayWidth * 0.8;
+        this.healthBar.x = this.x - healthBarWidth / 2;
+        this.healthBar.y = this.y - this.displayHeight / 2 - 5;
         this.healthBar.draw();
       }
     } else {
-      this.anims.play('attack', true);
+      this.anims.play(this.textureKey + '-attack', true);
       this.isEngaged = false;
     }
   }

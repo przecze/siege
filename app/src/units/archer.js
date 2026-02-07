@@ -1,25 +1,23 @@
-import Phaser from "phaser";
 import Unit from "./unit";
-import Arrow from "./arrow";
 
 export default class Archer extends Unit {
   constructor(scene, x, y, player) {
-    super(scene, x, y, {
-      textureKey: "archer_idle_1",
+    const params = {
+      textureKey: 'archer',
       speed: 0.5,
       health: 30,
       player: player,
       attackPower: 1,
-    });
+    };
+    super(scene, x, y, params);
+    // Animations are created globally from Aseprite data in GameScene.create()
+    this.setScale(3);
 
-    // Create animations
-    this.createAnimations();
-    this.setScale(1.5);
+    // Archer-specific: walk out then start shooting
     this.startingX = x;
     this.ARCHER_WALKOUT = 150;
-    this.anims.play("run", true);
     this.arrowCooldown = 0;
-		this.remainingArrows = 5;
+    this.remainingArrows = 5;
   }
 
   shouldShoot() {
@@ -39,7 +37,7 @@ export default class Archer extends Unit {
     }
     if (
 			this.remainingArrows > 0 &&
-      this.anims.currentAnim.key === "attack" &&
+      this.anims.currentAnim?.key === "archer-attack" &&
       this.anims.currentFrame.index === 6 &&
       this.arrowCooldown >= 30
     ) {
@@ -49,27 +47,5 @@ export default class Archer extends Unit {
     }
     this.arrowCooldown++;
     super.update();
-  }
-
-  createAnimations() {
-    // Define animation details in an array
-    const animations = [
-      { key: "run", prefix: "archer_run_", frameCount: 6 },
-      { key: "idle", prefix: "archer_idle_", frameCount: 6 },
-      { key: "attack", prefix: "archer_attack_", frameCount: 9 },
-      { key: "shoot", prefix: "archer_shoot_", frameCount: 12 },
-    ];
-    animations.forEach((anim) => {
-      const frameNames = [];
-      for (let i = 1; i <= anim.frameCount; i++) {
-        frameNames.push({ key: `${anim.prefix}${i}` });
-      }
-      this.anims.create({
-        key: anim.key,
-        frames: frameNames,
-        frameRate: 5,
-        repeat: -1,
-      });
-    });
   }
 }

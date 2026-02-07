@@ -24,13 +24,14 @@ services:
       - test
 
   assets:
-    image: python:3.13-slim
+    build:
+      context: .
+      dockerfile: Dockerfile.assets
     volumes:
       - ../assets:/assets
-      - ./public/assets:/app/public/assets
+      - ./public/assets/units:/app/public/assets/units
     working_dir: /assets
-    command: >-
-      sh -c "pip install uv --quiet && uv run unpack.py"
+    command: uv run unpack.py
     profiles:
       - tools
 

@@ -1,14 +1,14 @@
 [
   {
     "name": "Infantry",
-    "unit": "infantry",
+    "unit": "soldier",
     "pattern": [
       ["steel", "wood"]
     ]
   },
   {
     "name": "Rider",
-    "unit": "rider",
+    "unit": "lancer",
     "pattern": [
       ["fire", "steel"],
       ["fire", "steel"]
