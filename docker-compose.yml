@@ -71,7 +71,7 @@ services:
       context: .
       dockerfile: Dockerfile.assets
     volumes:
-      - ../assets:/assets
+      - ./assets:/assets
       - ./public/assets/units:/app/public/assets/units
     working_dir: /assets
     command: uv run unpack.py

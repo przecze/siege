@@ -24,14 +24,17 @@ dev:
 	docker compose --profile dev up --build -d
 
 dev-down:
-	docker compose --profile dev down
+	docker compose stop game nginx-dev
+	docker compose rm -f game nginx-dev
 
 dev-logs:
 	docker compose --profile dev logs -f --tail 30
 
 # Full rebuild with fresh node_modules volume
 rebuild:
-	docker compose --profile dev down -v
+	docker compose stop game nginx-dev
+	docker compose rm -f game nginx-dev
+	docker volume rm -f siege_game_node_modules 2>/dev/null || true
 	docker compose --profile dev up --build -d
 
 assets:
