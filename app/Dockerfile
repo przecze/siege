@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+# Install dependencies (ci uses lockfile for reproducible builds)
+RUN npm ci
 
 # Copy source code and other files to the working directory
 COPY . .
