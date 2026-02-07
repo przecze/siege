@@ -1,3 +1,4 @@
+import './style.css';
 import Phaser from 'phaser';
 import BootScene from './scenes/boot';
 import MenuScene from './scenes/menu';

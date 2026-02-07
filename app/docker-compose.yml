@@ -11,8 +11,9 @@ services:
     environment:
       VIRTUAL_HOST: siege.janczechowski.com
       LETSENCRYPT_HOST: siege.janczechowski.com
+      DEV_MODE: "false"
+      NGINX_ENVSUBST_FILTER: DEV_MODE
       NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
-      NGINX_ENVSUBST_FILTER: NOSUBST
     restart: unless-stopped
 
   # Vite dev server
@@ -43,8 +44,9 @@ services:
       - ./nginx.conf.template:/etc/nginx/templates/nginx.conf.template:ro
       - ./nginx/html:/usr/share/nginx/html:ro
     environment:
+      - DEV_MODE=true
+      - NGINX_ENVSUBST_FILTER=DEV_MODE
       - NGINX_ENVSUBST_OUTPUT_DIR=/etc/nginx
-      - NGINX_ENVSUBST_FILTER=NOSUBST
     depends_on:
       - game
     ports:
