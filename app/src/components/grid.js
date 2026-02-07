@@ -85,23 +85,22 @@ export default class Grid extends Phaser.GameObjects.Container {
     });
     const resetDuration = matchedPatterns.length === 0 ? 1200 : 100;
     this.clearUnitOverlays();
-    const images = ["wood", "steel", "magic", "fire"];
-    let completeCount = 0;
-    const totalCount = this.rows * this.cols;
-    for (let row = 0; row < this.grid.length; row++) {
-      for (let col = 0; col < this.grid[row].length; col++) {
-        const block = this.grid[row][col];
 
-        // Calculate the target position for the block
-        const targetX = -block.displayWidth;
+    // Collect all blocks as a flat array for a single multi-target tween
+    const allBlocks = this.grid.flat();
+    const firstBlock = allBlocks[0];
+    const targetX = -firstBlock.displayWidth;
 
-        // Create the tween and add it to the scene
-        this.scene.tweens.add({
-          targets: block,
-          x: targetX,
-          duration: resetDuration,
-          ease: "Linear",
-          onComplete: () => {
+    this.scene.tweens.add({
+      targets: allBlocks,
+      x: targetX,
+      duration: resetDuration,
+      ease: "Linear",
+      onComplete: () => {
+        // Randomize and reposition all blocks at once
+        const images = ["wood", "steel", "magic", "fire"];
+        for (let row = 0; row < this.rows; row++) {
+          for (let col = 0; col < this.cols; col++) {
             const imageKey = Phaser.Math.RND.pick(images);
             this.grid[row][col].setTexture(imageKey);
             this.grid[row][col].setPosition(
@@ -109,17 +108,14 @@ export default class Grid extends Phaser.GameObjects.Container {
               row * this.cellSize,
             );
             this.grid[row][col].color = imageKey;
-            completeCount++;
-            if (completeCount === totalCount) {
-              this.craftAreaBorder.setVisible(true);
-              this.isGridResetting = false;
-              this.cursorObj.visible = true;
-              this.runPatternCheck();
-            }
-          },
-        });
-      }
-    }
+          }
+        }
+        this.craftAreaBorder.setVisible(true);
+        this.isGridResetting = false;
+        this.cursorObj.visible = true;
+        this.runPatternCheck();
+      },
+    });
   }
 
   createCursor() {

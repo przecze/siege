@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   game:
     build: .
@@ -13,22 +12,17 @@ services:
       LETSENCRYPT_HOST: siege.janczechowski.com
     networks:
       - nginx-proxy
-      - localnet
+      - default
 
   test:
     build:
       context: .
       dockerfile: Dockerfile.test
-    depends_on:
-      - game
     environment:
       - BASE_URL=http://game:8000
-    networks:
-      - localnet
     profiles:
       - test
 
 networks:
-  localnet:
   nginx-proxy:
     external: true

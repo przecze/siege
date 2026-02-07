@@ -3,11 +3,15 @@ import BootScene from './scenes/boot';
 import MenuScene from './scenes/menu';
 import GameScene from './scenes/game';
 
-console.log('hello')
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
+  pixelArt: true,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+  },
   physics: {
     default: 'arcade',
     arcade: {

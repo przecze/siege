@@ -22,34 +22,23 @@ export default class GameScene extends Phaser.Scene {
     this.grid.cellSize = cellSize;
     this.grid.setPosition(0, 0);
     this.grid.setScale(cellSize / 64);
-    // create the send troops button
-    this.sendTroopsButtonBg = this.add.rectangle(
-      cellSize * this.grid.scaleY * 0.5,
-      cellSize * this.grid.scaleX * 5.3,
-      120, // width of the rectangle
-      50, // height of the rectangle
-      0x808080, // color of the rectangle (gray)
-    );
-    this.sendTroopsButtonBg.setOrigin(0, 0); // set origin to top left corner
-
+    // Send troops button (mobile only)
     this.sendTroopsButton = this.add
       .text(
-        this.sendTroopsButtonBg.x + this.sendTroopsButtonBg.width / 2, // center the text horizontally
-        this.sendTroopsButtonBg.y + this.sendTroopsButtonBg.height / 2, // center the text vertically
+        cellSize * this.grid.scaleY * 0.5,
+        cellSize * this.grid.scaleX * 5.3,
         "Send Troops",
-        { fill: "#0f0" },
+        {
+          color: "#0f0",
+          backgroundColor: "#808080",
+          padding: { x: 16, y: 12 },
+        },
       )
-      .setOrigin(0.5, 0.5) // center the text origin
+      .setOrigin(0, 0)
       .setInteractive()
       .on("pointerdown", () => this.grid.resetGrid());
 
-    // add the rectangle as a background to the button
-    this.sendTroopsButton.setDepth(2); // send the text to front
-    this.sendTroopsButtonBg.setDepth(1); // send the rectangle to back
-
-    // only show it on mobile devices
     this.sendTroopsButton.visible = !this.sys.game.device.os.desktop;
-    this.sendTroopsButtonBg.visible = !this.sys.game.device.os.desktop;
 
     this.cursors = this.input.keyboard.createCursorKeys();
 

@@ -8,6 +8,7 @@
  * - All three scenes are registered (boot, menu, game)
  * - Assets load without 404s
  * - Unit patterns JSON loads
+ * - Phaser version is >= 3.90
  */
 
 const { chromium } = require("playwright");
@@ -195,8 +196,34 @@ async function runTests() {
       fail(`Patterns check failed: ${error.message}`);
     }
 
-    // --- Test 7: Menu scene is active (first scene after boot) ---
-    console.log("7. Menu scene active...");
+    // --- Test 7: Phaser version check ---
+    console.log("7. Phaser version...");
+    try {
+      const versionInfo = await page.evaluate(() => {
+        const gameInstance =
+          window.b?.game || window.game || Phaser?.GAMES?.[0];
+        if (!gameInstance) return null;
+        return {
+          version: Phaser?.VERSION || gameInstance.config?.gameVersion || null,
+        };
+      });
+      if (versionInfo && versionInfo.version) {
+        const major = parseInt(versionInfo.version.split(".")[0], 10);
+        const minor = parseInt(versionInfo.version.split(".")[1], 10);
+        if (major === 3 && minor >= 90) {
+          pass(`Phaser version ${versionInfo.version} (>= 3.90)`);
+        } else {
+          fail(`Phaser version ${versionInfo.version} is below 3.90.0 — upgrade needed`);
+        }
+      } else {
+        fail("Could not detect Phaser version");
+      }
+    } catch (error) {
+      fail(`Phaser version check failed: ${error.message}`);
+    }
+
+    // --- Test 8: Menu scene is active (first scene after boot) ---
+    console.log("8. Menu scene active...");
     try {
       const activeScene = await page.evaluate(() => {
         const gameInstance =
