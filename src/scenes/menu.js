@@ -187,7 +187,7 @@ export default class MenuScene extends Phaser.Scene {
     ];
 
     materials.forEach(material => {
-      const sprite = this.add.sprite(material.x, height * 0.5, material.key);
+      const sprite = this.add.sprite(material.x, height * 0.5, 'elements', material.key);
       sprite.setDisplaySize(80, 80);
       
       const name = this.add.text(material.x, height * 0.62, material.name, {
@@ -241,7 +241,7 @@ export default class MenuScene extends Phaser.Scene {
         // Random material for demo
         const materials = ['wood', 'steel', 'fire', 'magic'];
         const material = Phaser.Math.RND.pick(materials);
-        const sprite = this.add.sprite(x, y, material);
+        const sprite = this.add.sprite(x, y, 'elements', material);
         sprite.setDisplaySize(cellSize, cellSize);
         
         // Highlight crafting area (bottom 2 rows)

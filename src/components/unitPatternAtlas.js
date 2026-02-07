@@ -22,7 +22,7 @@ export default class UnitPatternAtlas extends Phaser.GameObjects.Container {
   addUnitsAndPatterns() {
     const unitPatterns = this.scene.cache.json.get('unitPatterns');
     // use fire tile to get the size of the sprite
-    const tileSize = this.scene.textures.get('fire').getSourceImage().width;
+    const tileSize = this.scene.textures.getFrame('elements', 'fire').width;
 
     // calculate total height of all patterns
     let tilesCountHeight = 0;
@@ -56,7 +56,7 @@ export default class UnitPatternAtlas extends Phaser.GameObjects.Container {
       patternRepresentation.forEach((row, rowIndex) => {
         let xPos = xOffset; // Start position for X
         row.forEach((tile, colIndex) => {
-          const tileSprite = this.scene.add.sprite(xPos, yPos, tile);
+          const tileSprite = this.scene.add.sprite(xPos, yPos, 'elements', tile);
           tileSprite.setScale(scale, scale); // Apply calculated scale
           this.add(tileSprite);
 					tileSprite.setOrigin(0, 0);

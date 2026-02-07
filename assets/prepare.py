@@ -33,90 +33,183 @@ FRAME_SIZE = 100  # Each frame is 100x100 in the 100x100 character sheets
 ELEMENT_SPRITES = {
     "wood": {
         "colors": {
-            "0": (0, 0, 0),        # Black - background
-            "1": (139, 69, 19),     # Brown - wood
-            "2": (222, 184, 135),   # Burlywood - wood
+            "0": (0, 0, 0),            # Black background
+            "1": (56, 32, 10),         # Dark border / shadow
+            "2": (90, 56, 24),         # Dark wood
+            "3": (130, 85, 40),        # Medium brown
+            "4": (165, 115, 62),       # Warm wood
+            "5": (195, 150, 90),       # Light wood grain
+            "6": (222, 184, 135),      # Bright grain highlight
+            "7": (42, 22, 6),          # Knot / dark seam
+            "8": (160, 160, 170),      # Metal stud / nail
         },
         "pixels": [
-            "00000000",
-            "01111110",
-            "01222210",
-            "01222210",
-            "01222210",
-            "01222210",
-            "01111110",
-            "00000000",
+            "0000000000000000",
+            "0111111111111110",
+            "0183345543438110",
+            "0134556654543210",
+            "0134345454343210",
+            "0134556655543210",
+            "0123445544432110",
+            "0111111711111110",
+            "0111111711111110",
+            "0123445544432110",
+            "0134556655543210",
+            "0134345474343210",
+            "0134556654543210",
+            "0183345543438110",
+            "0111111111111110",
+            "0000000000000000",
         ],
     },
     "steel": {
         "colors": {
-            "0": (0, 0, 0),        # Black - background
-            "1": (192, 192, 192),   # Silver - steel
-            "2": (128, 128, 128),   # Gray - steel
+            "0": (0, 0, 0),            # Black background
+            "1": (55, 55, 65),         # Dark edge
+            "2": (85, 90, 100),        # Dark steel
+            "3": (120, 125, 140),      # Medium steel
+            "4": (155, 160, 175),      # Steel body
+            "5": (185, 190, 205),      # Light steel
+            "6": (215, 220, 235),      # Bright steel
+            "7": (240, 243, 252),      # Specular highlight
+            "8": (95, 110, 140),       # Rivet (blue tint)
         },
         "pixels": [
-            "11111111",
-            "12222221",
-            "12222221",
-            "12222221",
-            "12222221",
-            "12222221",
-            "12222221",
-            "11111111",
+            "0000000000000000",
+            "0111111111111110",
+            "0187654333328110",
+            "0176555444432110",
+            "0165555555433110",
+            "0155555555543110",
+            "0145555555544310",
+            "0145555555544310",
+            "0134555555544310",
+            "0134455555443210",
+            "0133445555443210",
+            "0123344444433210",
+            "0123334443332210",
+            "0182233333228110",
+            "0111111111111110",
+            "0000000000000000",
         ],
     },
     "magic": {
         "colors": {
-            "0": (0, 0, 0),        # Black - background
-            "1": (0, 255, 0),      # Green - magic
-            "2": (0, 128, 0),      # Dark Green - magic
+            "0": (0, 0, 0),            # Black background
+            "1": (5, 35, 20),          # Very dark green aura
+            "2": (10, 70, 45),         # Dark green
+            "3": (25, 120, 75),        # Green glow
+            "4": (50, 175, 110),       # Bright green
+            "5": (90, 220, 150),       # Neon green
+            "6": (160, 255, 200),      # Cyan highlight
+            "7": (235, 255, 245),      # White sparkle
+            "8": (130, 60, 210),       # Purple accent
+            "9": (210, 150, 255),      # Light purple sparkle
         },
         "pixels": [
-            "00100100",
-            "01111110",
-            "01222120",
-            "01222120",
-            "01222120",
-            "01111110",
-            "00100100",
-            "00000000",
+            "0000000000000900",
+            "0000012210000000",
+            "0001234432100000",
+            "0012345543210000",
+            "0123456654321000",
+            "0123467765432100",
+            "9134567765432100",
+            "0134577765432100",
+            "0123467765432100",
+            "0123456654321009",
+            "0012345543210000",
+            "0001234432100000",
+            "0000123321000000",
+            "0000012210000000",
+            "0900000000000000",
+            "0000000000000000",
         ],
     },
     "fire": {
         "colors": {
-            "0": (0, 0, 0),        # Black - background
-            "1": (255, 0, 0),      # Red - fire
-            "2": (255, 140, 0),    # Dark Orange - fire
+            "0": (0, 0, 0),            # Black background
+            "1": (80, 8, 0),           # Dark ember base
+            "2": (140, 20, 0),         # Deep red
+            "3": (200, 50, 5),         # Red
+            "4": (240, 100, 10),       # Red-orange
+            "5": (255, 155, 25),       # Orange
+            "6": (255, 200, 55),       # Amber
+            "7": (255, 235, 110),      # Yellow
+            "8": (255, 250, 200),      # White-hot center
+            "9": (255, 180, 40),       # Secondary orange
         },
         "pixels": [
-            "00000000",
-            "00011000",
-            "00111100",
-            "01111210",
-            "01111210",
-            "00111100",
-            "00011000",
-            "00000000",
+            "0000007000000000",
+            "0000078000000000",
+            "0000787000000000",
+            "0007878000070000",
+            "0007887000870000",
+            "0078888508760000",
+            "0078888878760000",
+            "0788888887660000",
+            "0688888887600000",
+            "0688888876600000",
+            "0068888876000000",
+            "0006788760000000",
+            "0006677600000000",
+            "0000566500000000",
+            "0000344000000000",
+            "0000120000000000",
         ],
     },
 }
 
 
 def generate_element_sprites() -> None:
-    """Generate small element-type sprites as PNGs into APP_ASSETS."""
+    """Generate a combined element spritesheet + Phaser JSON atlas into APP_ASSETS.
+
+    Produces ``elements.png`` (a single-row strip of 16x16 tiles) and
+    ``elements.json`` (Phaser JSON-Hash atlas) so all four element tiles are
+    loaded as one texture with named frames.
+    """
     APP_ASSETS.mkdir(parents=True, exist_ok=True)
-    for name, data in ELEMENT_SPRITES.items():
+
+    names = list(ELEMENT_SPRITES.keys())
+    tile_w = len(ELEMENT_SPRITES[names[0]]["pixels"][0])
+    tile_h = len(ELEMENT_SPRITES[names[0]]["pixels"])
+    sheet_w = tile_w * len(names)
+
+    sheet = Image.new("RGBA", (sheet_w, tile_h))
+    frames: dict = {}
+
+    for i, name in enumerate(names):
+        data = ELEMENT_SPRITES[name]
         pixels = data["pixels"]
         colors = data["colors"]
-        w, h = len(pixels[0]), len(pixels)
-        img = Image.new("RGBA", (w, h))
-        for y in range(h):
-            for x in range(w):
+        ox = i * tile_w
+        for y in range(tile_h):
+            for x in range(tile_w):
                 rgb = colors[pixels[y][x]]
-                img.putpixel((x, y), (*rgb, 255))
-        out = APP_ASSETS / f"{name}.png"
-        img.save(out)
-        print(f"  {name}.png (generated)")
+                sheet.putpixel((ox + x, y), (*rgb, 255))
+        frames[name] = {
+            "frame": {"x": ox, "y": 0, "w": tile_w, "h": tile_h},
+            "rotated": False,
+            "trimmed": False,
+            "spriteSourceSize": {"x": 0, "y": 0, "w": tile_w, "h": tile_h},
+            "sourceSize": {"w": tile_w, "h": tile_h},
+        }
+
+    atlas = {
+        "frames": frames,
+        "meta": {
+            "image": "elements.png",
+            "format": "RGBA8888",
+            "size": {"w": sheet_w, "h": tile_h},
+            "scale": "1",
+        },
+    }
+
+    out_png = APP_ASSETS / "elements.png"
+    out_json = APP_ASSETS / "elements.json"
+    sheet.save(out_png)
+    out_json.write_text(json.dumps(atlas, indent=2))
+    print(f"  elements.png ({sheet_w}x{tile_h}, {len(names)} frames)")
+    print(f"  elements.json (generated)")
 
 
 # ---------------------------------------------------------------------------

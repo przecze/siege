@@ -30,9 +30,10 @@ export default class Grid extends Phaser.GameObjects.Container {
           this.scene,
           col * this.cellSize * this.scaleX,
           row * this.cellSize * this.scaleY,
+          'elements',
           imageKey,
         ).setOrigin(0, 0);
-        block.setScale(this.cellSize / 8);
+        block.setScale(this.cellSize / 16);
         block.color = imageKey;
         this.add(block);
         this.grid[row][col] = block;
@@ -102,7 +103,7 @@ export default class Grid extends Phaser.GameObjects.Container {
         for (let row = 0; row < this.rows; row++) {
           for (let col = 0; col < this.cols; col++) {
             const imageKey = Phaser.Math.RND.pick(images);
-            this.grid[row][col].setTexture(imageKey);
+            this.grid[row][col].setTexture('elements', imageKey);
             this.grid[row][col].setPosition(
               col * this.cellSize,
               row * this.cellSize,

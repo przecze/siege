@@ -6,11 +6,8 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load tile sprites
-    this.load.image('wood', './assets/units/wood.png');
-    this.load.image('steel', './assets/units/steel.png');
-    this.load.image('magic', './assets/units/magic.png');
-    this.load.image('fire', './assets/units/fire.png');
+    // Load element tile atlas (wood, steel, magic, fire)
+    this.load.atlas('elements', './assets/units/elements.png', './assets/units/elements.json');
     
     // Load unit patterns data
     this.load.json('unitPatterns', './data/unitPatterns.json');
