@@ -74,7 +74,7 @@ services:
       - ./assets:/assets
       - ./public/assets/units:/app/public/assets/units
     working_dir: /assets
-    command: uv run unpack.py
+    command: uv run prepare.py
     profiles:
       - tools
 

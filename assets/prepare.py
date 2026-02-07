@@ -2,7 +2,8 @@
 # requires-python = ">=3.13"
 # dependencies = ["pillow"]
 # ///
-"""Unpack the Tiny RPG Character Asset Pack and process game-ready assets."""
+"""Prepare game-ready assets: unpack the Tiny RPG Character Asset Pack and
+generate element sprites."""
 
 import json
 import shutil
@@ -24,6 +25,103 @@ PACK_GLOB = "Tiny RPG Character Asset Pack*"
 
 FRAME_SIZE = 100  # Each frame is 100x100 in the 100x100 character sheets
 
+
+# ---------------------------------------------------------------------------
+# Element sprite definitions
+# ---------------------------------------------------------------------------
+
+ELEMENT_SPRITES = {
+    "wood": {
+        "colors": {
+            "0": (0, 0, 0),        # Black - background
+            "1": (139, 69, 19),     # Brown - wood
+            "2": (222, 184, 135),   # Burlywood - wood
+        },
+        "pixels": [
+            "00000000",
+            "01111110",
+            "01222210",
+            "01222210",
+            "01222210",
+            "01222210",
+            "01111110",
+            "00000000",
+        ],
+    },
+    "steel": {
+        "colors": {
+            "0": (0, 0, 0),        # Black - background
+            "1": (192, 192, 192),   # Silver - steel
+            "2": (128, 128, 128),   # Gray - steel
+        },
+        "pixels": [
+            "11111111",
+            "12222221",
+            "12222221",
+            "12222221",
+            "12222221",
+            "12222221",
+            "12222221",
+            "11111111",
+        ],
+    },
+    "magic": {
+        "colors": {
+            "0": (0, 0, 0),        # Black - background
+            "1": (0, 255, 0),      # Green - magic
+            "2": (0, 128, 0),      # Dark Green - magic
+        },
+        "pixels": [
+            "00100100",
+            "01111110",
+            "01222120",
+            "01222120",
+            "01222120",
+            "01111110",
+            "00100100",
+            "00000000",
+        ],
+    },
+    "fire": {
+        "colors": {
+            "0": (0, 0, 0),        # Black - background
+            "1": (255, 0, 0),      # Red - fire
+            "2": (255, 140, 0),    # Dark Orange - fire
+        },
+        "pixels": [
+            "00000000",
+            "00011000",
+            "00111100",
+            "01111210",
+            "01111210",
+            "00111100",
+            "00011000",
+            "00000000",
+        ],
+    },
+}
+
+
+def generate_element_sprites() -> None:
+    """Generate small element-type sprites as PNGs into APP_ASSETS."""
+    APP_ASSETS.mkdir(parents=True, exist_ok=True)
+    for name, data in ELEMENT_SPRITES.items():
+        pixels = data["pixels"]
+        colors = data["colors"]
+        w, h = len(pixels[0]), len(pixels)
+        img = Image.new("RGBA", (w, h))
+        for y in range(h):
+            for x in range(w):
+                rgb = colors[pixels[y][x]]
+                img.putpixel((x, y), (*rgb, 255))
+        out = APP_ASSETS / f"{name}.png"
+        img.save(out)
+        print(f"  {name}.png (generated)")
+
+
+# ---------------------------------------------------------------------------
+# Asset-pack unpacking helpers
+# ---------------------------------------------------------------------------
 
 def find_pack_root() -> Path | None:
     """Return the single top-level directory inside UNPACK_DIR."""
@@ -248,6 +346,11 @@ def publish_assets() -> None:
 
 
 def main() -> int:
+    # Always generate element sprites (no external asset pack needed)
+    print("Generating element sprites...")
+    generate_element_sprites()
+
+    # Unpack and process character assets from the zip
     if not unpack_zip():
         return 1
     publish_assets()
