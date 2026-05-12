@@ -1,19 +1,10 @@
-import Unit from './unit_legacy';
+import { Unit } from './Unit';
+import { archerDef } from '../data/units/archer';
 
 export default class Archer extends Unit {
   constructor(scene, x, y, player) {
-    const params = {
-      textureKey: 'archer',
-      speed: 0.5,
-      health: 30,
-      player: player,
-      attackPower: 1,
-    };
-    super(scene, x, y, params);
-    // Animations are created globally from Aseprite data in GameScene.create()
-    this.setScale(3);
+    super(scene, x, y, archerDef, player);
 
-    // Archer-specific: walk out then start shooting
     this.startingX = x;
     this.ARCHER_WALKOUT = 150;
     this.arrowCooldown = 0;
@@ -21,13 +12,10 @@ export default class Archer extends Unit {
   }
 
   shouldShoot() {
-    // If it walked more than ARCHER_WALKOUT, from player's castle, start attacking
-		if (this.remainingArrows === 0) {
-			return false;
-		}
+    if (this.remainingArrows === 0) return false;
     return (
-      (this.player === "L" && this.x > this.startingX + this.ARCHER_WALKOUT) ||
-      (this.player === "R" && this.x < this.startingX - this.ARCHER_WALKOUT)
+      (this.player === 'L' && this.x > this.startingX + this.ARCHER_WALKOUT) ||
+      (this.player === 'R' && this.x < this.startingX - this.ARCHER_WALKOUT)
     );
   }
 
@@ -36,14 +24,14 @@ export default class Archer extends Unit {
       this.isEngaged = true;
     }
     if (
-			this.remainingArrows > 0 &&
-      this.anims.currentAnim?.key === "archer-attack" &&
+      this.remainingArrows > 0 &&
+      this.anims.currentAnim?.key === 'archer-attack' &&
       this.anims.currentFrame.index === 6 &&
       this.arrowCooldown >= 30
     ) {
       this.scene.battlefield.spawnArrow(this.x, this.player);
       this.arrowCooldown = 0;
-			this.remainingArrows--;
+      this.remainingArrows--;
     }
     this.arrowCooldown++;
     super.update();

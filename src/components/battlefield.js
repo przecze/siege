@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import Rider from '../units/rider';
 import Arrow from '../units/arrow';
 import Archer from '../units/archer';
 import { UnitFactory } from '../units/UnitFactory';
@@ -66,13 +65,12 @@ export default class Battlefield {
     let UnitClass;
     if (typeof unitType === 'string') {
       // Map the string-based unit type to the corresponding class
-        if (unitType.toLowerCase() === 'soldier') {
-        const unit = UnitFactory.create(this.scene, 'soldier', player, startPosition.x, startPosition.y);
+      if (unitType.toLowerCase() === 'soldier' || unitType.toLowerCase() === 'lancer') {
+        const unit = UnitFactory.create(this.scene, unitType.toLowerCase(), player, startPosition.x, startPosition.y);
         if (unit) this.units.push(unit);
         return;
       }
       const unitClasses = {
-        'lancer': Rider,
         'arrow': Arrow,
         'archer': Archer,
       };

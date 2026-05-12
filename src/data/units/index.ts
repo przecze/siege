@@ -7,4 +7,5 @@ export const UNIT_DEFINITIONS: Record<string, UnitDefinition> = {
   soldier: soldierDef,
   archer: archerDef,
   rider: riderDef,
+  lancer: riderDef,
 };
