@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import Grid from "../components/grid";
 import UnitPatternAtlas from "../components/unitPatternAtlas";
-import Battlefield from "../components/battlefield";
+import { Battlefield } from "../battlefield/Battlefield";
 import HealthTracker from "../components/healthTracker";
 import { KeyboardController } from "../input/KeyboardController";
 
@@ -45,6 +45,7 @@ export default class GameScene extends Phaser.Scene {
     // Scene-level keys not part of player actions
     this.input.keyboard.on("keydown-S", this.slowGame, this);
     this.input.keyboard.on("keydown-P", this.togglePause, this);
+    this.input.keyboard.on("keydown-T", () => { this.battlefield.timer = 5; });
     this.input.keyboard.on("keydown-MINUS", () => {
       this.difficulty = Math.max(1, this.difficulty - 1);
       this.healthTracker.updateDifficulty(this.difficulty);
@@ -77,10 +78,6 @@ export default class GameScene extends Phaser.Scene {
     });
 
     this.units = [];
-
-    this.anims.createFromAseprite("soldier");
-    this.anims.createFromAseprite("lancer");
-    this.anims.createFromAseprite("archer");
 
     const unitPatterns = this.cache.json.get("unitPatterns");
     this.grid.patternMatcher.setPatterns(unitPatterns);

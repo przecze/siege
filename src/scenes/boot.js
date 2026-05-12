@@ -25,6 +25,9 @@ export default class BootScene extends Phaser.Scene {
   }
 
   create() {
+    for (const key of Object.keys(UNIT_ASSETS)) {
+      this.anims.createFromAseprite(key);
+    }
     this.scene.start('menu');
   }
 }
