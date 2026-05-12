@@ -3,6 +3,7 @@ import Grid from "../components/grid";
 import UnitPatternAtlas from "../components/unitPatternAtlas";
 import Battlefield from "../components/battlefield";
 import HealthTracker from "../components/healthTracker";
+import { KeyboardController } from "../input/KeyboardController";
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -17,22 +18,20 @@ export default class GameScene extends Phaser.Scene {
     let scaleY = this.cameras.main.height / bg.height;
     let scale = Math.max(scaleX, scaleY);
     bg.setScale(scale).setScrollFactor(0);
+
     const cellSize = this.sys.game.config.height / 12;
     this.grid = new Grid(this, 0, 0, 5, 6, cellSize);
     this.grid.cellSize = cellSize;
     this.grid.setPosition(0, 0);
     this.grid.setScale(cellSize / 64);
+
     // Send troops button (mobile only)
     this.sendTroopsButton = this.add
       .text(
         cellSize * this.grid.scaleY * 0.5,
         cellSize * this.grid.scaleX * 5.3,
         "Send Troops",
-        {
-          color: "#0f0",
-          backgroundColor: "#808080",
-          padding: { x: 16, y: 12 },
-        },
+        { color: "#0f0", backgroundColor: "#808080", padding: { x: 16, y: 12 } },
       )
       .setOrigin(0, 0)
       .setInteractive()
@@ -40,33 +39,12 @@ export default class GameScene extends Phaser.Scene {
 
     this.sendTroopsButton.visible = !this.sys.game.device.os.desktop;
 
-    this.cursors = this.input.keyboard.createCursorKeys();
+    // Player input — KeyboardController owns all grid key bindings
+    this.controller = new KeyboardController(this);
 
-    this.cursors.left.on("down", () => {
-      this.grid.moveCursor(-1, 0);
-    });
-
-    this.cursors.right.on("down", () => {
-      this.grid.moveCursor(1, 0);
-    });
-
-    this.cursors.up.on("down", () => {
-      this.grid.moveCursor(0, -1);
-    });
-
-    this.cursors.down.on("down", () => {
-      this.grid.moveCursor(0, 1);
-    });
-
-    this.input.keyboard.on("keydown-SPACE", () => {
-      this.grid.swapBlocks();
-    });
-    this.input.keyboard.on("keydown-R", () => {
-      this.grid.resetGrid();
-    });
+    // Scene-level keys not part of player actions
     this.input.keyboard.on("keydown-S", this.slowGame, this);
     this.input.keyboard.on("keydown-P", this.togglePause, this);
-
     this.input.keyboard.on("keydown-MINUS", () => {
       this.difficulty = Math.max(1, this.difficulty - 1);
       this.healthTracker.updateDifficulty(this.difficulty);
@@ -78,17 +56,9 @@ export default class GameScene extends Phaser.Scene {
       this.battlefield.updateDifficulty(this.difficulty);
     });
 
-    const atlasWidth =
-      this.grid.cols * this.grid.cellSize * this.grid.scaleX * 2;
-    const atlasHeight =
-      this.grid.rows * this.grid.cellSize * this.grid.scaleY * 2;
-    this.unitPatternAtlas = new UnitPatternAtlas(
-      this,
-      0,
-      0,
-      atlasWidth,
-      atlasHeight,
-    );
+    const atlasWidth = this.grid.cols * this.grid.cellSize * this.grid.scaleX * 2;
+    const atlasHeight = this.grid.rows * this.grid.cellSize * this.grid.scaleY * 2;
+    this.unitPatternAtlas = new UnitPatternAtlas(this, 0, 0, atlasWidth, atlasHeight);
     this.input.keyboard.on("keydown-V", () => {
       this.unitPatternAtlas.setVisible(true);
       this.grid.craftAreaBorder.setVisible(false);
@@ -100,11 +70,7 @@ export default class GameScene extends Phaser.Scene {
 
     this.input.on("pointerdown", (pointer) => {
       console.log(pointer.x, pointer.y);
-      const gridCoordinates = this.grid.getGridCoordinates(
-        pointer.x,
-        pointer.y,
-      );
-      // only call touchBlockXY if the coordinates are inside the grid
+      const gridCoordinates = this.grid.getGridCoordinates(pointer.x, pointer.y);
       if (gridCoordinates) {
         this.grid.touchBlockXY(gridCoordinates.row, gridCoordinates.col);
       }
@@ -112,7 +78,6 @@ export default class GameScene extends Phaser.Scene {
 
     this.units = [];
 
-    // Create animations from Aseprite atlas data
     this.anims.createFromAseprite("soldier");
     this.anims.createFromAseprite("lancer");
     this.anims.createFromAseprite("archer");
@@ -141,18 +106,13 @@ export default class GameScene extends Phaser.Scene {
         this.sys.game.config.width / 2,
         this.sys.game.config.height / 2,
         "",
-        {
-          fontSize: "32px",
-          backgroundColor: "0xffD700",
-          align: "center",
-        },
+        { fontSize: "32px", backgroundColor: "0xffD700", align: "center" },
       )
       .setOrigin(0.5, 0.5)
       .setVisible(false);
   }
 
   slowGame() {
-    // Modify the timeScale to slow down the game
     this.physics.world.timeScale *= 0.5;
   }
 
@@ -167,7 +127,6 @@ export default class GameScene extends Phaser.Scene {
 
   update() {
     if (this.battlefield.gameOver) {
-      // Show end screen
       let endMessage;
       if (this.battlefield.enemyCastle.health <= 0) {
         endMessage = "You win! Enemy castle is destroyed.";
@@ -179,18 +138,20 @@ export default class GameScene extends Phaser.Scene {
       endMessage += "\nPress 'R' to restart the game.";
       this.endText.setText(endMessage).setVisible(true);
 
-      // Listen for 'R' to restart the game
       this.input.keyboard.once("keydown-R", () => {
         this.scene.restart({ difficulty: this.difficulty });
       });
     } else {
       if (!this.isPaused && !this.battlefield.gameOver) {
-        // Continue the game...
+        // Poll controller and apply player actions to the grid
+        const actions = this.controller.getActions();
+        if (actions.moveCursor) this.grid.moveCursor(actions.moveCursor.dx, actions.moveCursor.dy);
+        if (actions.confirmSwap) this.grid.swapBlocks();
+        if (actions.sendTroops) this.grid.resetGrid();
+
         this.battlefield.update();
         this.healthTracker.updatePlayerHealth(this.battlefield.playerHealth);
-        this.healthTracker.updateEnemyHealth(
-          this.battlefield.enemyCastle.health,
-        );
+        this.healthTracker.updateEnemyHealth(this.battlefield.enemyCastle.health);
 
         const minutes = Math.floor(this.battlefield.timer / 60);
         const seconds = Math.floor(this.battlefield.timer % 60);
