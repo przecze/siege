@@ -1,18 +1,20 @@
 import { Unit } from './Unit';
 import { archerDef } from '../data/units/archer';
 import { eventBus } from '../events/EventBus';
+import type { PlayerSide } from '../types/PlayerSide';
 
-export default class Archer extends Unit {
-  constructor(scene, x, y, player) {
+export class Archer extends Unit {
+  private startingX: number;
+  private readonly ARCHER_WALKOUT = 150;
+  private arrowCooldown = 0;
+  private remainingArrows = 5;
+
+  constructor(scene: Phaser.Scene, x: number, y: number, player: PlayerSide) {
     super(scene, x, y, archerDef, player);
-
     this.startingX = x;
-    this.ARCHER_WALKOUT = 150;
-    this.arrowCooldown = 0;
-    this.remainingArrows = 5;
   }
 
-  shouldShoot() {
+  private shouldShoot(): boolean {
     if (this.remainingArrows === 0) return false;
     return (
       (this.player === 'L' && this.x > this.startingX + this.ARCHER_WALKOUT) ||
@@ -20,14 +22,13 @@ export default class Archer extends Unit {
     );
   }
 
-  update() {
-    if (this.shouldShoot()) {
-      this.isEngaged = true;
-    }
+  update(): void {
+    if (this.shouldShoot()) this.isEngaged = true;
+
     if (
       this.remainingArrows > 0 &&
       this.anims.currentAnim?.key === 'archer-attack' &&
-      this.anims.currentFrame.index === 6 &&
+      this.anims.currentFrame?.index === 6 &&
       this.arrowCooldown >= 30
     ) {
       eventBus.emit('PROJECTILE_SPAWN', { projectileId: 'arrow', x: this.x, y: this.y, player: this.player });

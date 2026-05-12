@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import type { UnitDefinition } from '../types/UnitDefinition';
 import type { PlayerSide } from '../types/PlayerSide';
 import { StatusEffectManager } from './StatusEffectManager';
-import HealthBar from './health_bar';
+import { HealthBar } from './HealthBar';
 
 export class Unit extends Phaser.GameObjects.Sprite {
   readonly def: UnitDefinition;

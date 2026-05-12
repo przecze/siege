@@ -4,8 +4,8 @@ import { UnitFactory } from '../units/UnitFactory';
 import { BattlefieldLayers } from './BattlefieldLayers';
 import { CombatResolver } from './CombatResolver';
 import { eventBus } from '../events/EventBus';
-import Archer from '../units/archer';
-import Arrow from '../units/arrow';
+import { Archer } from '../units/Archer';
+import { Arrow } from '../units/Arrow';
 
 export class Battlefield {
   readonly enemyCastle: { x: number; health: number };
@@ -61,9 +61,9 @@ export class Battlefield {
     let unit: Unit | null = null;
 
     if (unitId === 'archer') {
-      unit = new Archer(this.scene, resolvedX, resolvedY, player) as unknown as Unit;
+      unit = new Archer(this.scene, resolvedX, resolvedY, player);
     } else if (unitId === 'arrow') {
-      unit = new Arrow(this.scene, resolvedX, resolvedY, player) as unknown as Unit;
+      unit = new Arrow(this.scene, resolvedX, resolvedY, player);
     } else {
       unit = UnitFactory.create(this.scene, unitId, player, resolvedX, resolvedY);
     }

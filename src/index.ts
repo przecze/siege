@@ -1,10 +1,10 @@
 import './style.css';
 import Phaser from 'phaser';
-import BootScene from './scenes/boot';
-import MenuScene from './scenes/menu';
-import GameScene from './scenes/game';
+import { BootScene } from './scenes/BootScene';
+import { MenuScene } from './scenes/MenuScene';
+import { GameScene } from './scenes/GameScene';
 
-const config = {
+const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: 800,
   height: 600,
@@ -16,11 +16,11 @@ const config = {
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 0 },
+      gravity: { x: 0, y: 0 },
       debug: false,
     },
   },
   scene: [BootScene, MenuScene, GameScene],
 };
 
-const game = new Phaser.Game(config);
+new Phaser.Game(config);
