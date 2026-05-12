@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
-import Infantry from '../units/infantry';
 import Rider from '../units/rider';
-import Arrow from '../units/arrow';	
+import Arrow from '../units/arrow';
 import Archer from '../units/archer';
+import { UnitFactory } from '../units/UnitFactory';
 
 
 export default class Battlefield {
@@ -37,12 +37,11 @@ export default class Battlefield {
     let rand = Math.random(); // generates a random number between 0 and 1
     
     if (rand < 0.2) {
-      unitType = 'lancer';
-      this.spawnUnit(Rider, 'R');
+      this.spawnUnit('lancer', 'R');
     } else if (rand < 0.7) {
-      this.spawnUnit(Infantry, 'R');
+      this.spawnUnit('soldier', 'R');
     } else {
-      this.spawnUnit(Archer, 'R');
+      this.spawnUnit('archer', 'R');
     }
   }
 
@@ -67,8 +66,12 @@ export default class Battlefield {
     let UnitClass;
     if (typeof unitType === 'string') {
       // Map the string-based unit type to the corresponding class
+        if (unitType.toLowerCase() === 'soldier') {
+        const unit = UnitFactory.create(this.scene, 'soldier', player, startPosition.x, startPosition.y);
+        if (unit) this.units.push(unit);
+        return;
+      }
       const unitClasses = {
-        'soldier': Infantry,
         'lancer': Rider,
         'arrow': Arrow,
         'archer': Archer,

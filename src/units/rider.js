@@ -1,4 +1,4 @@
-import Unit from './unit';
+import Unit from './unit_legacy';
 
 export default class Rider extends Unit {
   constructor(scene, x, y, player) {
