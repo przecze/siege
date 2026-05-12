@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import Arrow from '../units/arrow';
 import Archer from '../units/archer';
 import { UnitFactory } from '../units/UnitFactory';
+import { eventBus } from '../events/EventBus';
 
 
 export default class Battlefield {
@@ -24,6 +25,10 @@ export default class Battlefield {
       loop: true,
     });
     this.timer = 100;
+
+    eventBus.on('PROJECTILE_SPAWN', ({ projectileId, x, y, player }) => {
+      if (projectileId === 'arrow') this.spawnUnit('arrow', player, x, y);
+    });
   }
 
   spawnEnemyUnit() {
@@ -47,11 +52,6 @@ export default class Battlefield {
 	updateDifficulty(difficulty) {
 		this.spawnEnemyTimer.delay = 5000 - 300 * difficulty;
 	}
-
-  spawnArrow(x, player) {
-    const y = this.scene.sys.game.config.height * 5 / 6;
-    this.spawnUnit(Arrow, player, x, y);
-  }
 
   spawnUnit(unitType, player, x, y) {
     if (x === undefined) {

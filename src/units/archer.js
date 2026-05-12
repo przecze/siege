@@ -1,5 +1,6 @@
 import { Unit } from './Unit';
 import { archerDef } from '../data/units/archer';
+import { eventBus } from '../events/EventBus';
 
 export default class Archer extends Unit {
   constructor(scene, x, y, player) {
@@ -29,7 +30,7 @@ export default class Archer extends Unit {
       this.anims.currentFrame.index === 6 &&
       this.arrowCooldown >= 30
     ) {
-      this.scene.battlefield.spawnArrow(this.x, this.player);
+      eventBus.emit('PROJECTILE_SPAWN', { projectileId: 'arrow', x: this.x, y: this.y, player: this.player });
       this.arrowCooldown = 0;
       this.remainingArrows--;
     }
