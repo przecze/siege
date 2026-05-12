@@ -165,16 +165,6 @@ export default class GameScene extends Phaser.Scene {
     this.isPaused = !this.isPaused;
   }
 
-  preload() {
-    this.load.image("background", "./assets/background.png");
-    this.load.image("arrow", "./assets/units/arrow.png");
-
-    // Unit spritesheets — loaded as Aseprite atlases
-    this.load.aseprite("soldier", "./assets/units/soldier.png", "./assets/units/soldier.json");
-    this.load.aseprite("lancer", "./assets/units/lancer.png", "./assets/units/lancer.json");
-    this.load.aseprite("archer", "./assets/units/archer.png", "./assets/units/archer.json");
-  }
-
   update() {
     if (this.battlefield.gameOver) {
       // Show end screen

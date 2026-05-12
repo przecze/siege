@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { UNIT_ASSETS, ATLAS_ASSETS, IMAGE_ASSETS, DATA_ASSETS } from '../assets/AssetRegistry';
 
 export default class BootScene extends Phaser.Scene {
   constructor() {
@@ -6,16 +7,21 @@ export default class BootScene extends Phaser.Scene {
   }
 
   preload() {
-    // Load element tile atlas (wood, steel, magic, fire)
-    this.load.atlas('elements', './assets/units/elements.png', './assets/units/elements.json');
-    
-    // Load unit patterns data
-    this.load.json('unitPatterns', './data/unitPatterns.json');
-    
-    // Unit spritesheets for tutorial — loaded as Aseprite atlases
-    this.load.aseprite("soldier", "./assets/units/soldier.png", "./assets/units/soldier.json");
-    this.load.aseprite("lancer", "./assets/units/lancer.png", "./assets/units/lancer.json");
-    this.load.aseprite("archer", "./assets/units/archer.png", "./assets/units/archer.json");
+    for (const [key, { png, json }] of Object.entries(ATLAS_ASSETS)) {
+      this.load.atlas(key, png, json);
+    }
+
+    for (const [key, { path }] of Object.entries(DATA_ASSETS)) {
+      this.load.json(key, path);
+    }
+
+    for (const [key, { png, json }] of Object.entries(UNIT_ASSETS)) {
+      this.load.aseprite(key, png, json);
+    }
+
+    for (const [key, { path }] of Object.entries(IMAGE_ASSETS)) {
+      this.load.image(key, path);
+    }
   }
 
   create() {
