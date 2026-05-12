@@ -1,4 +1,4 @@
-.PHONY: lock assets
+.PHONY: lock assets deploy
 
 # Regenerate package-lock.json from package.json using the same Node version as the container
 lock:
@@ -6,3 +6,6 @@ lock:
 		sh -c "npm install --package-lock-only && cp package-lock.json /out/"
 assets:
 	docker compose run --rm assets
+
+deploy:
+	cd ansible && ansible-playbook deploy.yml

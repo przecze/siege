@@ -1,0 +1,79 @@
+# =============================================================================
+# SIEGE PROJECT DEPLOYMENT PLAYBOOK
+# =============================================================================
+#
+# SAFETY GUARANTEES:
+#
+# 1. TARGET DIRECTORY: Only /srv/projects/siege is touched
+#    - All file operations use project_dir variable
+#
+# 2. ASSETS:
+#    - Processed assets (public/assets/units) are synced from local build
+#    - Raw source assets (assets/unpacked, assets/*.zip) are NEVER copied
+#
+# 3. NGINX-PROXY INTEGRATION:
+#    - Connects to existing nginx-proxy network (external: true)
+#    - Sets VIRTUAL_HOST=siege.janczechowski.com
+#    - Does NOT modify /srv/projects/nginx-proxy/ files
+#
+# 4. DOCKER COMMANDS: Only these docker operations are performed:
+#    - docker compose build site
+#    - docker compose up -d --force-recreate --remove-orphans site
+#    All scoped to /srv/projects/siege/docker-compose.yml
+#
+# 5. DELETE BEHAVIOR:
+#    - Files removed locally are also removed from the server (--delete)
+#    - Protects against stale build artifacts accumulating on server
+#
+# =============================================================================
+
+- name: Deploy siege project
+  hosts: bluh
+
+  vars:
+    project_dir: /srv/projects/siege
+
+  tasks:
+    - name: Ensure project directory exists
+      ansible.builtin.file:
+        path: "{{ project_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Sync project files to server
+      ansible.posix.synchronize:
+        src: "{{ playbook_dir }}/../"
+        dest: "{{ project_dir }}/"
+        delete: yes
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=node_modules"
+          - "--exclude=ansible"
+          - "--exclude=.DS_Store"
+          # Raw unprocessed assets - never copy to server
+          - "--exclude=assets/unpacked"
+          - "--exclude=assets/*.zip"
+          - "--checksum"
+          - "--omit-dir-times"
+
+    - name: Build site image
+      ansible.builtin.shell: |
+        cd {{ project_dir }} && docker compose build site
+
+    - name: Start site container
+      ansible.builtin.shell: |
+        cd {{ project_dir }} && docker compose up -d --force-recreate --remove-orphans site
+      register: docker_result
+
+    - name: Show docker compose output
+      ansible.builtin.debug:
+        var: docker_result.stdout_lines
+
+    - name: Check container status
+      ansible.builtin.shell: |
+        cd {{ project_dir }} && docker compose ps
+      register: ps_result
+
+    - name: Show running containers
+      ansible.builtin.debug:
+        var: ps_result.stdout_lines
