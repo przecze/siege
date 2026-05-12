@@ -27,6 +27,7 @@ services:
       - ./public:/app/public
       - ./index.html:/app/index.html
       - ./vite.config.js:/app/vite.config.js
+      - ./tsconfig.json:/app/tsconfig.json
       - ./package.json:/app/package.json
       - ./package-lock.json:/app/package-lock.json
       - /app/node_modules
@@ -50,7 +51,7 @@ services:
     depends_on:
       - game
     ports:
-      - 127.0.0.1:8000:80
+      - 127.0.0.1:8080:80
     profiles:
       - dev
     restart: unless-stopped

@@ -1,6 +1,5 @@
 FROM python:3.13-slim
 
-RUN pip install --quiet --no-cache-dir uv==0.10.0 && \
-    uv pip install --system --quiet pillow
+RUN pip install --quiet --no-cache-dir uv==0.11.14 && uv pip install --system --quiet pillow~=12.2.0
 
 WORKDIR /assets
