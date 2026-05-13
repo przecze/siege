@@ -22,7 +22,7 @@ export const ATLAS_ASSETS = {
 export type AtlasKey = keyof typeof ATLAS_ASSETS;
 
 export const IMAGE_ASSETS = {
-  background: { path: './assets/background.png' },
+  background: { path: './assets/background.svg' },
   arrow:      { path: './assets/units/arrow.png' },
 } as const satisfies Record<string, ImageAsset>;
 
