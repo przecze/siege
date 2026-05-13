@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { palette, col, text, btn, drawPanel, wireButton } from '../theme';
 
 const COOKIE_KEY = 'siege_last_seen_version';
 
@@ -72,57 +73,62 @@ export class ChangelogScene extends Phaser.Scene {
       return;
     }
 
+    // Dim the game background behind the panel
     const overlay = this.add.graphics();
-    overlay.fillStyle(0x000000, 0.85);
+    overlay.fillStyle(0x000000, 0.75);
     overlay.fillRect(0, 0, width, height);
 
     const panelW = width * 0.78;
-    const panelH = height * 0.82;
+    const panelH = height * 0.84;
     const panelX = (width - panelW) / 2;
     const panelY = (height - panelH) / 2;
 
     const panel = this.add.graphics();
-    panel.fillStyle(0x0a1a2e, 1);
-    panel.fillRoundedRect(panelX, panelY, panelW, panelH, 12);
-    panel.lineStyle(2, 0xFFD700, 0.8);
-    panel.strokeRoundedRect(panelX, panelY, panelW, panelH, 12);
+    drawPanel(panel, panelX, panelY, panelW, panelH, 12);
 
-    this.add.text(width / 2, panelY + 28, "What's New", {
-      fontSize: '28px', fontStyle: 'bold', color: '#FFD700',
+    // Gold top rule
+    panel.lineStyle(2, col.gold, 0.7);
+    panel.beginPath();
+    panel.moveTo(panelX + 24, panelY + 58);
+    panel.lineTo(panelX + panelW - 24, panelY + 58);
+    panel.strokePath();
+
+    this.add.text(width / 2, panelY + 20, "What's New", {
+      ...text.heading,
     }).setOrigin(0.5, 0);
 
-    this.add.text(width / 2, panelY + 60, `Version ${latestVersion}`, {
-      fontSize: '14px', color: '#888888',
+    this.add.text(width / 2, panelY + 63, `Version ${latestVersion}`, {
+      ...text.dim,
     }).setOrigin(0.5, 0);
 
-    let y = panelY + 96;
+    let y = panelY + 86;
     const contentX = panelX + 28;
     const contentW = panelW - 56;
 
     for (const entry of entries) {
       const header = entry.date ? `v${entry.version}  ·  ${entry.date}` : `v${entry.version}`;
       this.add.text(contentX, y, header, {
-        fontSize: '15px', fontStyle: 'bold', color: '#FFD700',
+        ...text.subheading,
       });
-      y += 24;
+      y += 26;
 
       for (const change of entry.changes) {
-        this.add.text(contentX + 8, y, `• ${change}`, {
-          fontSize: '14px', color: '#DDDDDD', wordWrap: { width: contentW - 16 },
+        this.add.text(contentX + 10, y, `• ${change}`, {
+          ...text.small,
+          color: palette.offWhite,
+          wordWrap: { width: contentW - 20 },
         });
         y += 22;
       }
-      y += 14;
+      y += 12;
     }
 
-    const btn = this.add.text(width / 2, panelY + panelH - 28, "Let's play!", {
-      fontSize: '18px', fontStyle: 'bold', color: '#FFFFFF',
-      backgroundColor: '#006600', padding: { x: 28, y: 10 },
+    const playBtn = this.add.text(width / 2, panelY + panelH - 22, "Let's play!", {
+      ...btn.primary.style,
     }).setOrigin(0.5, 1).setInteractive();
 
-    btn.on('pointerover', () => btn.setStyle({ backgroundColor: '#008800' }));
-    btn.on('pointerout',  () => btn.setStyle({ backgroundColor: '#006600' }));
-    btn.on('pointerdown', () => {
+    wireButton(playBtn, btn.primary.hover, btn.primary.out);
+    playBtn.on('pointerdown', () => {
       markSeen(latestVersion);
       this.scene.start('menu');
     });

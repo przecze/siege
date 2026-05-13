@@ -4,6 +4,7 @@ import { UnitPatternAtlas } from '../components/UnitPatternAtlas';
 import { Battlefield } from '../battlefield/Battlefield';
 import { HealthTracker } from '../components/HealthTracker';
 import { KeyboardController } from '../input/KeyboardController';
+import { palette, btn, text, wireButton } from '../theme';
 
 export class GameScene extends Phaser.Scene {
   private grid!: Grid;
@@ -31,13 +32,14 @@ export class GameScene extends Phaser.Scene {
     this.grid.setPosition(0, 0);
     this.grid.setScale(cellSize / 64);
 
-    this.add.text(
+    const sendBtn = this.add.text(
       cellSize * this.grid.scaleY * 0.5,
       cellSize * this.grid.scaleX * 5.3,
       'Send Troops',
-      { color: '#0f0', backgroundColor: '#808080', padding: { x: 16, y: 12 } },
+      { ...btn.primary.style, fontSize: '14px' },
     ).setOrigin(0, 0).setInteractive().on('pointerdown', () => this.grid.resetGrid())
       .setVisible(!this.sys.game.device.os.desktop);
+    wireButton(sendBtn, btn.primary.hover, btn.primary.out);
 
     this.controller = new KeyboardController(this);
 
@@ -95,7 +97,7 @@ export class GameScene extends Phaser.Scene {
       (this.sys.game.config.width as number) / 2,
       (this.sys.game.config.height as number) / 2,
       '',
-      { fontSize: '32px', backgroundColor: '0xffD700', align: 'center' },
+      { ...text.heading, align: 'center', backgroundColor: palette.navyDeep, padding: { x: 32, y: 20 } },
     ).setOrigin(0.5, 0.5).setVisible(false);
   }
 

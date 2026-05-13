@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
+import { palette, col, text, btn, drawPanel, wireButton, addKeyGlyph } from '../theme';
 
 interface PatternData { unit: string; pattern: string[][]; }
-interface MatchResult { unit: string; position: { row: number; col: number }; size: { width: number; height: number }; }
 
 export class MenuScene extends Phaser.Scene {
   private currentPage = 0;
@@ -14,9 +14,11 @@ export class MenuScene extends Phaser.Scene {
   constructor() { super('menu'); }
 
   create(): void {
+    const { width, height } = this.sys.game.config as { width: number; height: number };
+
     const gfx = this.add.graphics();
-    gfx.fillGradientStyle(0x001122, 0x001122, 0x002244, 0x002244, 1);
-    gfx.fillRect(0, 0, this.sys.game.config.width as number, this.sys.game.config.height as number);
+    gfx.fillStyle(col.navyDeep, 1);
+    gfx.fillRect(0, 0, width, height);
 
     this.setupNavigation();
     this.showCurrentPage();
@@ -25,20 +27,25 @@ export class MenuScene extends Phaser.Scene {
   private setupNavigation(): void {
     const { width, height } = this.sys.game.config as { width: number; height: number };
 
-    this.add.text(width - 20, 20, 'Skip to Game', {
-      fontSize: '14px', color: '#888888', backgroundColor: '#333333', padding: { x: 12, y: 6 },
+    const skipBtn = this.add.text(width - 16, 16, 'Skip to Game', {
+      ...btn.ghost.style,
     }).setOrigin(1, 0).setInteractive().on('pointerdown', () => this.scene.start('game'));
+    wireButton(skipBtn, btn.ghost.hover, btn.ghost.out);
 
-    this.prevButton = this.add.text(50, height - 40, '← Previous', {
-      fontSize: '16px', color: '#CCCCCC', backgroundColor: '#444444', padding: { x: 15, y: 8 },
+    this.input.keyboard!.on('keydown-S', () => this.scene.start('game'));
+
+    this.prevButton = this.add.text(50, height - 36, '← Previous', {
+      ...btn.secondary.style,
     }).setOrigin(0, 1).setInteractive().setVisible(false);
+    wireButton(this.prevButton, btn.secondary.hover, btn.secondary.out);
 
-    this.nextButton = this.add.text(width - 50, height - 40, 'Next →', {
-      fontSize: '16px', color: '#FFFFFF', backgroundColor: '#006600', padding: { x: 15, y: 8 },
+    this.nextButton = this.add.text(width - 50, height - 36, 'Next →', {
+      ...btn.primary.style,
     }).setOrigin(1, 1).setInteractive();
+    wireButton(this.nextButton, btn.primary.hover, btn.primary.out);
 
-    this.pageIndicator = this.add.text(width / 2, height - 40, '', {
-      fontSize: '14px', color: '#FFFFFF', align: 'center',
+    this.pageIndicator = this.add.text(width / 2, height - 36, '', {
+      ...text.dim,
     }).setOrigin(0.5, 1);
 
     this.prevButton.on('pointerdown', () => { if (this.currentPage > 0) { this.currentPage--; this.showCurrentPage(); } });
@@ -46,10 +53,6 @@ export class MenuScene extends Phaser.Scene {
       if (this.currentPage < this.totalPages - 1) { this.currentPage++; this.showCurrentPage(); }
       else this.scene.start('game');
     });
-    this.nextButton.on('pointerover', () => this.nextButton.setStyle({ backgroundColor: '#008800' }));
-    this.nextButton.on('pointerout',  () => this.nextButton.setStyle({ backgroundColor: '#006600' }));
-    this.prevButton.on('pointerover', () => this.prevButton.setStyle({ backgroundColor: '#666666' }));
-    this.prevButton.on('pointerout',  () => this.prevButton.setStyle({ backgroundColor: '#444444' }));
   }
 
   private showCurrentPage(): void {
@@ -74,17 +77,15 @@ export class MenuScene extends Phaser.Scene {
   private showWelcomePage(): void {
     const { width, height } = this.sys.game.config as { width: number; height: number };
     this.pageContainer.add([
-      this.add.text(width / 2, height * 0.2, 'SIEGE!!', {
-        fontSize: '64px', fontFamily: 'Arial Black', color: '#FFD700',
-        stroke: '#8B4513', strokeThickness: 6,
-        shadow: { offsetX: 4, offsetY: 4, color: '#000000', blur: 8, fill: true },
+      this.add.text(width / 2, height * 0.22, 'SIEGE', {
+        ...text.title, fontSize: '72px',
       }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.3, 'Craft • Battle • Conquer', {
-        fontSize: '24px', color: '#CCCCCC', fontStyle: 'italic',
+      this.add.text(width / 2, height * 0.34, 'Craft  ·  Battle  ·  Conquer', {
+        fontSize: '22px', color: palette.steelLight, fontStyle: 'italic',
       }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.5,
-        'Welcome to SIEGE!\n\nA strategy game where you craft units\nby arranging magical materials on a grid.\n\nDifferent patterns create different troops\nto lead into battle against enemy castle.',
-        { fontSize: '20px', color: '#FFFFFF', align: 'center', lineSpacing: 8 },
+      this.add.text(width / 2, height * 0.54,
+        'Welcome to SIEGE!\n\nA strategy game where you craft units\nby arranging magical materials on a grid.\n\nDifferent patterns create different troops\nto lead into battle against the enemy castle.',
+        { ...text.body, align: 'center' },
       ).setOrigin(0.5),
     ]);
   }
@@ -97,29 +98,38 @@ export class MenuScene extends Phaser.Scene {
     const materials = ['wood', 'steel', 'fire', 'magic'];
 
     for (let row = 0; row < 5; row++) {
-      for (let col = 0; col < 6; col++) {
-        const x = gridX + col * (cellSize + 2);
+      for (let c = 0; c < 6; c++) {
+        const x = gridX + c * (cellSize + 2);
         const y = gridY + row * (cellSize + 2);
         const sprite = this.add.sprite(x, y, 'elements', Phaser.Math.RND.pick(materials)).setDisplaySize(cellSize, cellSize);
-        if (row >= 3) this.pageContainer.add(this.add.rectangle(x, y, cellSize + 4, cellSize + 4).setStrokeStyle(2, 0xFFD700, 0.8));
-        if (row === 4 && col === 2) this.pageContainer.add(this.add.rectangle(x, y, cellSize + 6, cellSize + 6).setStrokeStyle(3, 0xFFFFFF));
+        if (row >= 3) this.pageContainer.add(this.add.rectangle(x, y, cellSize + 4, cellSize + 4).setStrokeStyle(2, col.gold, 0.8));
+        if (row === 4 && c === 2) this.pageContainer.add(this.add.rectangle(x, y, cellSize + 6, cellSize + 6).setStrokeStyle(3, col.white));
         this.pageContainer.add(sprite);
       }
     }
 
-    [0, 2, 4].forEach(pos => {
+    [0, 2, 4].forEach((pos, i) => {
       this.pageContainer.add([
-        this.add.text(gridX + pos * (cellSize + 2), gridY + 5 * (cellSize + 2) + 20, '↑', { fontSize: '20px', color: '#00FF00', fontStyle: 'bold' }).setOrigin(0.5, 0),
-        this.add.text(gridX + pos * (cellSize + 2), gridY + 5 * (cellSize + 2) + 45, `Pos ${pos}`, { fontSize: '12px', color: '#00FF00' }).setOrigin(0.5, 0),
+        this.add.text(gridX + pos * (cellSize + 2), gridY + 5 * (cellSize + 2) + 6, '↑', { fontSize: '20px', color: palette.playerGreen, fontStyle: 'bold' }).setOrigin(0.5, 0),
+        this.add.text(gridX + pos * (cellSize + 2), gridY + 5 * (cellSize + 2) + 28, `Pos ${i + 1}`, { fontSize: '12px', color: palette.playerGreen }).setOrigin(0.5, 0),
       ]);
     });
 
     this.pageContainer.add([
-      this.add.text(width / 2, height * 0.1, 'The Crafting Grid', { fontSize: '42px', color: '#FFD700', fontStyle: 'bold' }).setOrigin(0.5),
-      this.add.text(width * 0.65, height * 0.25, 'How to Use the Grid:\n\n🎮 ARROW KEYS - Move cursor\n⚡ SPACE BAR - Select/Swap\n🚀 R KEY - Release units!', { fontSize: '12px', color: '#FFFFFF', align: 'left', lineSpacing: 3, wordWrap: { width: 180 } }).setOrigin(0, 0),
-      this.add.text(width * 0.65, height * 0.45, '🏗️ BUILD ZONE:', { fontSize: '13px', color: '#FFD700', fontStyle: 'bold' }).setOrigin(0, 0),
-      this.add.text(width * 0.65, height * 0.49, 'Golden area = crafting zone\nStart at positions 0, 2, or 4', { fontSize: '11px', color: '#FFFFFF', lineSpacing: 2, wordWrap: { width: 180 } }).setOrigin(0, 0),
+      this.add.text(width / 2, height * 0.1, 'The Crafting Grid', { ...text.heading }).setOrigin(0.5),
+      this.add.text(width * 0.62, height * 0.25, 'Controls:', { ...text.subheading }).setOrigin(0, 0),
+      this.add.text(width * 0.62, height * 0.53, 'BUILD ZONE:', { ...text.subheading }).setOrigin(0, 0),
+      this.add.text(width * 0.62, height * 0.58,
+        'Golden area = crafting zone\nStart at positions 1, 2, or 3',
+        { ...text.small, lineSpacing: 3, wordWrap: { width: 200 } }).setOrigin(0, 0),
     ]);
+
+    const kx = width * 0.62;
+    const ky = height * 0.32;
+    const step = 22;
+    addKeyGlyph(this, this.pageContainer, kx, ky,           '↑↓←→', 'Move cursor');
+    addKeyGlyph(this, this.pageContainer, kx, ky + step,    'SPC',   'Select / Swap');
+    addKeyGlyph(this, this.pageContainer, kx, ky + step * 2,'R',     'Release units');
   }
 
   private showInfantryPage(): void {
@@ -139,27 +149,27 @@ export class MenuScene extends Phaser.Scene {
     const unitPatterns: PatternData[] = this.cache.json.get('unitPatterns');
     const unitPattern = unitPatterns.find(p => p.unit === unitKey)!;
 
-    this.showPattern(unitPattern, width * 0.3, height * 0.4);
+    this.showPattern(unitPattern, width * 0.3, height * 0.42);
 
     this.pageContainer.add([
-      this.add.text(width / 2, height * 0.15, unitName, { fontSize: '42px', color: '#FFD700', fontStyle: 'bold' }).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.12, unitName, { ...text.heading }).setOrigin(0.5),
       this.add.sprite(width * 0.7, height * 0.45, unitKey).setScale(3).play({ key: unitKey + '-run', repeat: -1 }),
-      this.add.text(width / 2, height * 0.65, pattern, { fontSize: '18px', color: '#FFFFFF', align: 'center', fontStyle: 'bold' }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.75, description, { fontSize: '16px', color: '#CCCCCC', align: 'center' }).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.66, pattern, { ...text.subheading, align: 'center' } ).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.75, description, { ...text.small, color: palette.steelLight, align: 'center' }).setOrigin(0.5),
     ]);
   }
 
   private showPattern(patternData: PatternData, x: number, y: number): void {
     const tileSize = 50;
     const reversed = [...patternData.pattern].reverse();
-    this.pageContainer.add(this.add.text(x, y - 60, 'Pattern:', { fontSize: '16px', color: '#FFFFFF', fontStyle: 'bold' }).setOrigin(0.5));
+    this.pageContainer.add(this.add.text(x, y - 60, 'Pattern:', { ...text.label }).setOrigin(0.5));
     for (let row = 0; row < reversed.length; row++) {
-      for (let col = 0; col < reversed[row].length; col++) {
-        const sx = x + (col - reversed[0].length / 2 + 0.5) * (tileSize + 5);
+      for (let c = 0; c < reversed[row].length; c++) {
+        const sx = x + (c - reversed[0].length / 2 + 0.5) * (tileSize + 5);
         const sy = y + (row - reversed.length / 2 + 0.5) * (tileSize + 5);
         this.pageContainer.add([
-          this.add.sprite(sx, sy, 'elements', reversed[row][col]).setDisplaySize(tileSize, tileSize),
-          this.add.rectangle(sx, sy, tileSize, tileSize).setStrokeStyle(3, 0xFFFFFF, 0.9),
+          this.add.sprite(sx, sy, 'elements', reversed[row][c]).setDisplaySize(tileSize, tileSize),
+          this.add.rectangle(sx, sy, tileSize, tileSize).setStrokeStyle(2, col.steel, 0.7),
         ]);
       }
     }
@@ -173,18 +183,32 @@ export class MenuScene extends Phaser.Scene {
       this.pageContainer.add(this.add.sprite(width * 0.2 + i * 150, unitY, unit).setScale(2).play({ key: unit + '-run', repeat: -1 }));
     });
     this.pageContainer.add([
-      this.add.text(width / 2, height * 0.15, 'BATTLE!', { fontSize: '42px', color: '#FF4444', fontStyle: 'bold' }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.3, 'Your crafted units automatically march toward the enemy castle.\n\nThey fight any enemies they encounter along the way.\n\nCraft wisely and overwhelm your opponents!', { fontSize: '18px', color: '#FFFFFF', align: 'center', lineSpacing: 10 }).setOrigin(0.5),
-      this.add.text(width * 0.75, unitY, '→ ENEMY CASTLE', { fontSize: '16px', color: '#FF6666', fontStyle: 'bold' }).setOrigin(0, 0.5),
+      this.add.text(width / 2, height * 0.12, 'BATTLE!', { ...text.heading, color: palette.enemyRed }).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.3,
+        'Your crafted units automatically march toward the enemy castle.\n\nThey fight any enemies they encounter along the way.\n\nCraft wisely and overwhelm your opponents!',
+        { ...text.body, align: 'center' },
+      ).setOrigin(0.5),
+      this.add.text(width * 0.75, unitY, '→ ENEMY CASTLE', { ...text.small, color: palette.crimson, fontStyle: 'bold' }).setOrigin(0, 0.5),
     ]);
   }
 
   private showReadyPage(): void {
     const { width, height } = this.sys.game.config as { width: number; height: number };
+
+    const gfx = this.add.graphics();
+    drawPanel(gfx, width * 0.1, height * 0.28, width * 0.8, height * 0.48, 10);
+    this.pageContainer.add(gfx);
+
     this.pageContainer.add([
-      this.add.text(width / 2, height * 0.2, 'READY FOR BATTLE?', { fontSize: '48px', color: '#FFD700', fontStyle: 'bold' }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.4, '💡 Quick Tips:\n\n• Use arrow keys + SPACE to arrange materials\n• Build patterns at positions 0, 2, or 4 in the bottom row\n• Press R to deploy your crafted army\n• Different unit combinations create powerful armies\n• Destroy the enemy castle to win!', { fontSize: '16px', color: '#FFFFFF', align: 'center', lineSpacing: 8 }).setOrigin(0.5),
-      this.add.text(width / 2, height * 0.75, 'The realm awaits your strategic genius!\n\nGood luck, Commander!', { fontSize: '18px', color: '#CCCCCC', align: 'center', lineSpacing: 6 }).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.16, 'READY FOR BATTLE?', { ...text.heading }).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.41,
+        '• Arrow keys + SPACE to arrange materials\n• Build patterns at positions 1, 2, or 3\n• Press R to deploy your crafted army\n• Mix unit types for powerful armies\n• Destroy the enemy castle to win!',
+        { ...text.small, align: 'left', lineSpacing: 8 },
+      ).setOrigin(0.5),
+      this.add.text(width / 2, height * 0.66,
+        'The realm awaits your command, Commander.',
+        { ...text.small, color: palette.steelLight, fontStyle: 'italic', align: 'center' },
+      ).setOrigin(0.5),
     ]);
   }
 }
