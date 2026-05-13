@@ -7,7 +7,7 @@ services:
       target: production
     networks:
       - nginx-proxy
-    #ports: ["127.0.0.1:8000:80"]
+    ports: ["127.0.0.1:8001:80"]
     environment:
       VIRTUAL_HOST: siege.janczechowski.com
       LETSENCRYPT_HOST: siege.janczechowski.com

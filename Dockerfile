@@ -1,5 +1,5 @@
 # Multi-purpose Dockerfile - works for both dev and production
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
 
 # Development stage - just node with dependencies
-FROM node:22-alpine AS development
+FROM node:26-alpine AS development
 
 WORKDIR /app
 

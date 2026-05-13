@@ -23,6 +23,6 @@ export class BootScene extends Phaser.Scene {
     for (const key of Object.keys(UNIT_ASSETS)) {
       this.anims.createFromAseprite(key);
     }
-    this.scene.start('menu');
+    this.scene.start('changelog');
   }
 }
